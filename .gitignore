@@ -1,0 +1,8 @@
+Debug/
+Release/
+*~
+.*
+!.gitignore
+!.project
+!.cproject
+!.settings
