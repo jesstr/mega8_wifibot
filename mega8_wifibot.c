@@ -232,7 +232,6 @@ void Motor_Run(int left, int right)
 		if (left > 0) MOTOR_FORWARDRUN;
 		else MOTOR_BACKWARDRUN;
 	}
-	
 	if (left < 0) {
 		left = 0 - left;
 	}
@@ -240,9 +239,13 @@ void Motor_Run(int left, int right)
 	MOTOR_FREEWHEEL;
 }
 
-void Turret_Run(int hor_pos, int vert_pos)
+void Turret_Run(unsigned int hor_pos, unsigned int vert_pos)
 {
-
+	if ((SERVO_MAX_PULSE_TIME * 2 - 1 < hor_pos + vert_pos) && (hor_pos + vert_pos < SERVO_MIN_PULSE_TIME * 2 + 1)) {
+		servo_pulse_time[TURR_HOR_SERVO] = hor_pos;
+		servo_pulse_time[TURR_VERT_SERVO] = vert_pos;
+		Servo_UpdateArrays();
+	}
 }
 
 // Îáðàáîòêà ïðåðûâàíèÿ ïî ïðèåìó áàéòà ïî UART (ïîìåùàåòñÿ â ãëàâíûé ìîäóëü)
@@ -253,20 +256,20 @@ ISR(USART_RXC_vect)
 	if ((n_butes < UART_RX_BUFF_SIZE - 1) && (buff != 0x0A)) {
 		uart_rx_buff[n_butes++] = buff;
 	}
-	else 
-	{ 
+	else
+	{
 		if (n_butes == UART_RX_BUFF_SIZE)
 		{
 			global_state |= (1<<UART_buffoverflow_bit);
 		}
 		else
-		{			
-			if ((global_state&(1<<UART_rx_complete_bit)) == 0) // åñëè ïðåäûäóùàÿ ïîñûëêà îáðàáîòàíà
+		{
+			if ((global_state & (1<<UART_rx_complete_bit)) == 0) // åñëè ïðåäûäóùàÿ ïîñûëêà îáðàáîòàíà
 			{
 				uart_rx_buff[n_butes] = 0;
 				global_state |= (1<<UART_rx_complete_bit);
 				global_state &= ~(1<<UART_wrong_package_bit);
-				strcpy(uart_rx_packet, uart_rx_buff);		
+				strcpy(uart_rx_packet, uart_rx_buff);
 			}			
 			else
 			{
@@ -303,16 +306,14 @@ int main(void)
 {
 	UART_Init(MYUBRR);
 	MOTOR_INIT;
-	sei();	
+	sei();
     while(1) {
 		if (IS_NEW_COMMAND) {
 			command = strtok(uart_rx_packet, "=,");
 			lex_p[lex_n++] = command;
-			
 			while( (command = strtok(NULL, "=,")) ) {
 				lex_p[lex_n++] = command;
 			}
-	
 			if (strcmp(lex_p[0], "DrvLR") == 0) {
 				Motor_Run(atoi(lex_p[1]), atoi(lex_p[2]));
 				COMMAND_DONE;
@@ -325,11 +326,11 @@ int main(void)
 				Motor_Run(atoi(lex_p[1]), atoi(lex_p[2]));
 				COMMAND_DONE;
 			}
-			else if (strcmp(lex_p[0],"pong") == 0) {
+			else if (strcmp(lex_p[0], "pong") == 0) {
 				COMMAND_DONE;
 			}
-			else COMMAND_DONE;				
+			else COMMAND_DONE;
 		}
 		_delay_us(2);
-	}	
+	}
 }

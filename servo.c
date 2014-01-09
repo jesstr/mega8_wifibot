@@ -3,11 +3,9 @@
 #include <util/delay.h>
 #include "servo.h"
 
-char servo_number=0;
-unsigned int delta_time[4];       //delta_time[n] массив разниц длительностей n-1 сервомашинок по порядку
-unsigned int pulse_time[4];       //pulse_time[n] массив управляющих длительностей n-1 сервомашинок
-unsigned char sorted_index[4];            //упорядоченные индексы массива pulse_time[n]
-unsigned char count_of_servos=3; //количество управляемых сервомашинок (ограничено количеством свободных портов)
+unsigned int delta_time[4];		//delta_time[n] массив разниц длительностей n-1 сервомашинок по порядку
+unsigned char sorted_index[4];	//упорядоченные индексы массива servo_pulse_time[n]
+
 
 void wait_us(unsigned int us)   //имитация задержки (в 1.3815 раз медленне чем delay_us() при 8МГц и локальной переменной j) -  us*1.3815=мкс задержки
 {                               //имитация задержки (в 1.628 раз медленне чем delay_us() при 8МГц и глобальной переменной j) -  us*1.628=мкс задержки
@@ -23,18 +21,18 @@ ISR(TIMER2_COMP_vect)
 {
 	unsigned char i;
 
-	SRVPORT1|=(1<<SRVPIN1);
-	SRVPORT2|=(1<<SRVPIN2);
-	SRVPORT3|=(1<<SRVPIN3);
-	for (i=1; i<=count_of_servos; i++) {
+	SRVPORT1 |= (1<<SRVPIN1);
+	SRVPORT2 |= (1<<SRVPIN2);
+	SRVPORT3 |= (1<<SRVPIN3);
+	for (i = 1; i <= COUNT_OF_SERVOS; i++) {
 		wait_us(delta_time[i]);
 		switch (sorted_index[i]) {
-			case 1: SRVPORT1&=~(1<<SRVPIN1); break;
-			case 2: SRVPORT2&=~(1<<SRVPIN2); break;
-			case 3: SRVPORT3&=~(1<<SRVPIN3); break;
+			case 1: SRVPORT1 &= ~(1<<SRVPIN1); break;
+			case 2: SRVPORT2 &= ~(1<<SRVPIN2); break;
+			case 3: SRVPORT3 &= ~(1<<SRVPIN3); break;
 		}
 	}
-	PORTC^=0x01;
+	PORTC ^= 0x01;
 }
 
 void BubbleSort(unsigned char n)
@@ -42,18 +40,18 @@ void BubbleSort(unsigned char n)
 	unsigned char i=0;
 	unsigned int Temp;
 
-		while (n>0) {
-			n--;
-			i=0;
-			while (i<n) {
-				if (pulse_time[(sorted_index[i])]>pulse_time[(sorted_index[i+1])]) {
-					Temp=sorted_index[i+1];
-					sorted_index[i+1]=sorted_index[i];
-					sorted_index[i]=Temp;
-				}
-				i++;
+	while (n > 0) {
+		n--;
+		i = 0;
+		while (i < n) {
+			if (servo_pulse_time[(sorted_index[i])] > servo_pulse_time[(sorted_index[i + 1])]) {
+				Temp = sorted_index[i + 1];
+				sorted_index[i + 1] = sorted_index[i];
+				sorted_index[i] = Temp;
 			}
+			i++;
 		}
+	}
 }
 
 void Servo_UpdateArrays(void)
@@ -64,18 +62,18 @@ void Servo_UpdateArrays(void)
 	sorted_index[1]=1;
 	sorted_index[2]=2;
 	sorted_index[3]=3;
-	BubbleSort(count_of_servos+1);
-	for (i=1; i<=count_of_servos; i++) {
-		delta_time[i]=pulse_time[(sorted_index[i])]-pulse_time[(sorted_index[i-1])];
+	BubbleSort(COUNT_OF_SERVOS+1);
+	for (i=1; i<=COUNT_OF_SERVOS; i++) {
+		delta_time[i]=servo_pulse_time[(sorted_index[i])]-servo_pulse_time[(sorted_index[i-1])];
 	}
 }
 
 void Servo_InitPulses(void)
 {
-	pulse_time[0]=0;              //651 - 0град(900мкс), 1085 - 30град(1500мкс), 1520 - 60град(2100мкс)
-	pulse_time[1]=651;             //552 - 0град(900мкс), 921 - 30град(1500мкс), 1290 - 60град(2100мкс)
-	pulse_time[2]=651;
-	pulse_time[3]=651;
+	servo_pulse_time[0]=0;              //651 - 0град(900мкс), 1085 - 30град(1500мкс), 1520 - 60град(2100мкс)
+	servo_pulse_time[1]=651;             //552 - 0град(900мкс), 921 - 30град(1500мкс), 1290 - 60град(2100мкс)
+	servo_pulse_time[2]=651;
+	servo_pulse_time[3]=651;
 	sorted_index[0]=0;
 	sorted_index[1]=1;
 	sorted_index[2]=2;
@@ -85,52 +83,52 @@ void Servo_InitPulses(void)
 void Servo_Demo(void)
 {
 	_delay_ms(500);
-	pulse_time[1]=1520;
+	servo_pulse_time[1]=1520;
 	Servo_UpdateArrays();
 	_delay_ms(500);
-	pulse_time[1]=651;
+	servo_pulse_time[1]=651;
 	Servo_UpdateArrays();
 	_delay_ms(500);
-	pulse_time[2]=1520;
+	servo_pulse_time[2]=1520;
 	Servo_UpdateArrays();
 	_delay_ms(500);
-	pulse_time[2]=651;
+	servo_pulse_time[2]=651;
 	Servo_UpdateArrays();
 	_delay_ms(500);
-	pulse_time[3]=1520;
+	servo_pulse_time[3]=1520;
 	Servo_UpdateArrays();
 	_delay_ms(500);
-	pulse_time[3]=651;
+	servo_pulse_time[3]=651;
 	Servo_UpdateArrays();
 	_delay_ms(500);
-	pulse_time[1]=1520;
-	pulse_time[2]=1520;
-	pulse_time[3]=1520;
+	servo_pulse_time[1]=1520;
+	servo_pulse_time[2]=1520;
+	servo_pulse_time[3]=1520;
 	Servo_UpdateArrays();
 	_delay_ms(500);
-	pulse_time[1]=651;
-	pulse_time[2]=651;
-	pulse_time[3]=651;
+	servo_pulse_time[1]=651;
+	servo_pulse_time[2]=651;
+	servo_pulse_time[3]=651;
 	Servo_UpdateArrays();
 	_delay_ms(500);
-	pulse_time[1]=651;
-	pulse_time[2]=1085;
-	pulse_time[3]=1520;
+	servo_pulse_time[1]=651;
+	servo_pulse_time[2]=1085;
+	servo_pulse_time[3]=1520;
 	Servo_UpdateArrays();
 	_delay_ms(500);
-	pulse_time[1]=651;
-	pulse_time[2]=651;
-	pulse_time[3]=651;
+	servo_pulse_time[1]=651;
+	servo_pulse_time[2]=651;
+	servo_pulse_time[3]=651;
 	Servo_UpdateArrays();
 	_delay_ms(500);
-	pulse_time[1]=1520;
-	pulse_time[2]=1085;
-	pulse_time[3]=651;
+	servo_pulse_time[1]=1520;
+	servo_pulse_time[2]=1085;
+	servo_pulse_time[3]=651;
 	Servo_UpdateArrays();
 	_delay_ms(500);
-	pulse_time[1]=651;
-	pulse_time[2]=651;
-	pulse_time[3]=651;
+	servo_pulse_time[1]=651;
+	servo_pulse_time[2]=651;
+	servo_pulse_time[3]=651;
 	Servo_UpdateArrays();
 	_delay_ms(2000);
 }
