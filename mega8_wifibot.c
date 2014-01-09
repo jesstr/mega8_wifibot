@@ -258,7 +258,7 @@ ISR(USART_RXC_vect)
 	}
 	else
 	{
-		if (n_butes == UART_RX_BUFF_SIZE)
+		if (n_butes >= UART_RX_BUFF_SIZE)
 		{
 			global_state |= (1<<UART_buffoverflow_bit);
 		}
