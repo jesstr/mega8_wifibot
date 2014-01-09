@@ -8,6 +8,7 @@
 //#define F_CPU 8000000UL
 
 #include <avr/io.h>
+#include <stdlib.h>
 #include <util/delay.h>
 #include <string.h>
 #include <avr/interrupt.h>
@@ -20,11 +21,11 @@ char uart_rx_buff[UART_RX_BUFF_SIZE];	// Áóôåð ïðèåìà UART
 char uart_rx_packet[UART_RX_BUFF_SIZE];	// Ïðèíÿòàÿ ïî UART ïîñûëêà 
 //char lex[UART_LEX_MASS_SIZE][UART_RX_BUFF_SIZE];	// Ìàññèâ ëåêñåì
 char *lex_p[UART_LEX_MASS_SIZE];	// Ìàññèâ óêàçàòåëåé íà ëåêñåìû
-char *command=NULL;
-unsigned char n_butes=0;	// Ñ÷åò÷èê ïðèíÿòûõ ïî UART áàéò 
-unsigned char lex_n=0;	// Ñ÷åò÷èê ëåêñåì
+char *command = NULL;
+unsigned char n_butes = 0;	// Ñ÷åò÷èê ïðèíÿòûõ ïî UART áàéò
+unsigned char lex_n = 0;	// Ñ÷åò÷èê ëåêñåì
 
-unsigned char global_state=0; // Ïåðåìåííàÿ ôëàãîâ ñîñòîÿíèÿ
+unsigned char global_state = 0; // Ïåðåìåííàÿ ôëàãîâ ñîñòîÿíèÿ
 
 #define UART_rx_complete_bit 0 // Ôëàã ïðèåìà UART ïîñûëêè  
 #define UART_buffoverflow_bit 1 // Ôëàã ïåðåïîëíåíèÿ áöôåðà ïðèåìà UART  
@@ -32,39 +33,39 @@ unsigned char global_state=0; // Ïåðåìåííàÿ ôëàãîâ ñîñòîÿ�
 
 #define IS_NEW_COMMAND global_state&(1<<UART_rx_complete_bit) // Ïðîâåðêà, íåò ëè íîâîé êîìàíäû äëÿ îáðàáîòêè
 
-#define COMMAND_DONE { global_state&=~(1<<UART_rx_complete_bit); lex_n=0; } // Ñáðîñ ôëàãà íîâîé êîìàíäû ïîñëå îáðàáîòêè, ñáðîñ èíäåêñà ìàññèâà ëåêñåì
+#define COMMAND_DONE { global_state &= ~(1<<UART_rx_complete_bit); lex_n = 0; } // Ñáðîñ ôëàãà íîâîé êîìàíäû ïîñëå îáðàáîòêè, ñáðîñ èíäåêñà ìàññèâà ëåêñåì
 
 // Íàçíà÷åíèå âûâîäîâ äëÿ äðàéâåðà äâèãàòåëåé
-#define CE1_PIN	PD6
-#define CE1_PORT PORTD
-#define CE1_DDR DDRD
+#define CE1_PIN		PD6
+#define CE1_PORT 	PORTD
+#define CE1_DDR 	DDRD
 
-#define CE2_PIN	PD6
-#define CE2_PORT PORTD
-#define CE2_DDR DDRD
+#define CE2_PIN		PD6
+#define CE2_PORT 	PORTD
+#define CE2_DDR 	DDRD
 
 #define INPUT1_PIN	PB1
 #define INPUT1_PORT PORTB
-#define INPUT1_DDR DDRB
+#define INPUT1_DDR 	DDRB
 
 #define INPUT2_PIN	PB2
 #define INPUT2_PORT PORTB
-#define INPUT2_DDR DDRB
+#define INPUT2_DDR 	DDRB
 
 #define INPUT3_PIN	PB0
 #define INPUT3_PORT PORTB
-#define INPUT3_DDR DDRB
+#define INPUT3_DDR 	DDRB
 
 #define INPUT4_PIN	PD7
 #define INPUT4_PORT PORTD
-#define INPUT4_DDR DDRD
+#define INPUT4_DDR 	DDRD
 
 // Ìàêðîñû äëÿ äðàéâåðà äâèãàòåëåé
-#define CHIP1_DISABLE	CE1_PORT&=~(1<<CE1_PIN);
-#define CHIP2_DISABLE	CE2_PORT&=~(1<<CE2_PIN);
+#define CHIP1_DISABLE	CE1_PORT &= ~(1<<CE1_PIN);
+#define CHIP2_DISABLE	CE2_PORT &= ~(1<<CE2_PIN);
 
-#define CHIP1_ENABLE	CE1_PORT|=(1<<CE1_PIN);
-#define CHIP2_ENABLE	CE2_PORT|=(1<<CE2_PIN);
+#define CHIP1_ENABLE	CE1_PORT |= (1<<CE1_PIN);
+#define CHIP2_ENABLE	CE2_PORT |= (1<<CE2_PIN);
 
 #define LEFT_DISABLE	CHIP1_DISABLE
 #define LEFT_ENABLE		CHIP1_ENABLE
@@ -81,49 +82,49 @@ unsigned char global_state=0; // Ïåðåìåííàÿ ôëàãîâ ñîñòîÿ�
 						RIGHT_DISABLE; 	\
 						} while(0)
 
-#define FORWARD			do { 							\
-						INPUT1_PORT&=~(1<<INPUT1_PIN);	\
-						INPUT2_PORT|=(1<<INPUT2_PIN);	\
-						INPUT3_PORT|=(1<<INPUT3_PIN);	\
-						INPUT4_PORT&=~(1<<INPUT4_PIN);	\
+#define FORWARD			do { 								\
+						INPUT1_PORT &= ~(1<<INPUT1_PIN);	\
+						INPUT2_PORT |= (1<<INPUT2_PIN);		\
+						INPUT3_PORT |= (1<<INPUT3_PIN);		\
+						INPUT4_PORT &= ~(1<<INPUT4_PIN);	\
 						} while(0)
 						
 #define BACKWARD		do { 							\
-						INPUT2_PORT&=~(1<<INPUT2_PIN);	\
-						INPUT1_PORT|=(1<<INPUT1_PIN);	\
-						INPUT4_PORT|=(1<<INPUT4_PIN);	\
-						INPUT3_PORT&=~(1<<INPUT3_PIN);	\
+						INPUT2_PORT &= ~(1<<INPUT2_PIN);	\
+						INPUT1_PORT |= (1<<INPUT1_PIN);	\
+						INPUT4_PORT |= (1<<INPUT4_PIN);	\
+						INPUT3_PORT &= ~(1<<INPUT3_PIN);	\
 						} while(0)
 						
 #define RIGHT			do { 							\
-						INPUT1_PORT&=~(1<<INPUT1_PIN);	\
-						INPUT2_PORT|=(1<<INPUT2_PIN);	\
-						INPUT4_PORT|=(1<<INPUT4_PIN);	\
-						INPUT3_PORT&=~(1<<INPUT3_PIN);	\
+						INPUT1_PORT &= ~(1<<INPUT1_PIN);	\
+						INPUT2_PORT |= (1<<INPUT2_PIN);	\
+						INPUT4_PORT |= (1<<INPUT4_PIN);	\
+						INPUT3_PORT &= ~(1<<INPUT3_PIN);	\
 						} while(0)
 						
 #define LEFT			do {							\
-						INPUT1_PORT&=~(1<<INPUT1_PIN);	\
-						INPUT2_PORT|=(1<<INPUT2_PIN);	\
-						INPUT3_PORT|=(1<<INPUT3_PIN);	\
-						INPUT4_PORT&=~(1<<INPUT4_PIN);	\
+						INPUT1_PORT &= ~(1<<INPUT1_PIN);	\
+						INPUT2_PORT |= (1<<INPUT2_PIN);	\
+						INPUT3_PORT |= (1<<INPUT3_PIN);	\
+						INPUT4_PORT &= ~(1<<INPUT4_PIN);	\
 						} while(0)
 						
 #define BRAKE			do {							\
-						INPUT2_PORT|=(1<<INPUT2_PIN);	\
-						INPUT1_PORT|=(1<<INPUT1_PIN);	\
-						INPUT4_PORT|=(1<<INPUT4_PIN);	\
-						INPUT3_PORT|=(1<<INPUT3_PIN);	\
+						INPUT2_PORT |= (1<<INPUT2_PIN);	\
+						INPUT1_PORT |= (1<<INPUT1_PIN);	\
+						INPUT4_PORT |= (1<<INPUT4_PIN);	\
+						INPUT3_PORT |= (1<<INPUT3_PIN);	\
 						} while(0)
 						
 #define MOTOR_INIT		do {							\
 						BOTH_DISABLE;					\
-						CE1_DDR|=(1<<CE1_PIN);			\
-						CE2_DDR|=(1<<CE2_PIN);			\
-						INPUT1_DDR|=(1<<INPUT1_PIN);	\
-						INPUT2_DDR|=(1<<INPUT2_PIN);	\
-						INPUT3_DDR|=(1<<INPUT3_PIN);	\
-						INPUT4_DDR|=(1<<INPUT4_PIN);	\
+						CE1_DDR |= (1<<CE1_PIN);			\
+						CE2_DDR |= (1<<CE2_PIN);			\
+						INPUT1_DDR |= (1<<INPUT1_PIN);	\
+						INPUT2_DDR |= (1<<INPUT2_PIN);	\
+						INPUT3_DDR |= (1<<INPUT3_PIN);	\
+						INPUT4_DDR |= (1<<INPUT4_PIN);	\
 						} while(0)
 
 #define MOTOR_FORWARDRUN	do {			\
@@ -156,7 +157,7 @@ unsigned char global_state=0; // Ïåðåìåííàÿ ôëàãîâ ñîñòîÿ�
 
 void wait_ms(short ms)
 {
-	while(ms>0)
+	while(ms > 0)
 	{
 		_delay_ms(1);
 		ms--;		
@@ -219,22 +220,29 @@ inline void MotorDriver_Brake(void)
 }
 */
 
-void MotorDriver_Run(int left,int right)
+void Motor_Run(int left, int right)
 {
-	if (left && right && left-right==2*left) 
+	if (left && right && left - right == 2 * left)
 	{
-		if (left>0) MOTOR_RIGHT;
+		if (left > 0) MOTOR_RIGHT;
 		else MOTOR_LEFT;
 	}	
-	else if (left && right && left-right==0)
+	else if (left && right && left - right == 0)
 	{
-		if (left>0) MOTOR_FORWARDRUN;
+		if (left > 0) MOTOR_FORWARDRUN;
 		else MOTOR_BACKWARDRUN;
 	}
 	
-	if (left<0) left=0-left;
+	if (left < 0) {
+		left = 0 - left;
+	}
 	wait_ms(left);
 	MOTOR_FREEWHEEL;
+}
+
+void Turret_Run(int hor_pos, int vert_pos)
+{
+
 }
 
 // Îáðàáîòêà ïðåðûâàíèÿ ïî ïðèåìó áàéòà ïî UART (ïîìåùàåòñÿ â ãëàâíûé ìîäóëü)
@@ -242,28 +250,30 @@ ISR(USART_RXC_vect)
 {
 	unsigned char buff=UDR;
 
-	if ((n_butes<UART_RX_BUFF_SIZE-1) && (buff!=0x0A)) uart_rx_buff[n_butes++]=buff; 
+	if ((n_butes < UART_RX_BUFF_SIZE - 1) && (buff != 0x0A)) {
+		uart_rx_buff[n_butes++] = buff;
+	}
 	else 
 	{ 
-		if (n_butes==UART_RX_BUFF_SIZE) 
+		if (n_butes == UART_RX_BUFF_SIZE)
 		{
-			global_state|=(1<<UART_buffoverflow_bit);
+			global_state |= (1<<UART_buffoverflow_bit);
 		}
 		else
 		{			
-			if ((global_state&(1<<UART_rx_complete_bit))==0) // åñëè ïðåäûäóùàÿ ïîñûëêà îáðàáîòàíà
+			if ((global_state&(1<<UART_rx_complete_bit)) == 0) // åñëè ïðåäûäóùàÿ ïîñûëêà îáðàáîòàíà
 			{
-				uart_rx_buff[n_butes]=0; 
-				global_state|=(1<<UART_rx_complete_bit);
-				global_state&=~(1<<UART_wrong_package_bit);
+				uart_rx_buff[n_butes] = 0;
+				global_state |= (1<<UART_rx_complete_bit);
+				global_state &= ~(1<<UART_wrong_package_bit);
 				strcpy(uart_rx_packet, uart_rx_buff);		
 			}			
 			else
 			{
-				global_state|=(1<<UART_wrong_package_bit); //èíà÷å òåðÿåì ïðèøåäøèé ïàêåò
+				global_state |= (1<<UART_wrong_package_bit); //èíà÷å òåðÿåì ïðèøåäøèé ïàêåò
 			}			
 		}		
-	n_butes=0;
+	n_butes = 0;
 	}
 
 // 	unsigned char buff=UDR;
@@ -296,19 +306,26 @@ int main(void)
 	sei();	
     while(1) {
 		if (IS_NEW_COMMAND) {
-			command=strtok(uart_rx_packet, "=,");
-			lex_p[lex_n++]=command;
+			command = strtok(uart_rx_packet, "=,");
+			lex_p[lex_n++] = command;
 			
-			while(command=strtok(NULL, "=,")) lex_p[lex_n++]=command;
-	
-			if (strcmp(lex_p[0],"DrvLR")==0) {
-				MotorDriver_Run(atoi(lex_p[1]),atoi(lex_p[2]));
-				COMMAND_DONE;
-			} 
-			else if (strcmp(lex_p[0],"Turr")==0) {
-
+			while( (command = strtok(NULL, "=,")) ) {
+				lex_p[lex_n++] = command;
 			}
-			else if (strcmp(lex_p[0],"pong")==0) {
+	
+			if (strcmp(lex_p[0], "DrvLR") == 0) {
+				Motor_Run(atoi(lex_p[1]), atoi(lex_p[2]));
+				COMMAND_DONE;
+			}
+			else if (strcmp(lex_p[0], "TurrLR") == 0) {
+				Turret_Run(atoi(lex_p[1]), atoi(lex_p[2]));
+				COMMAND_DONE;
+			}
+			else if (strcmp(lex_p[0], "TurrUD") == 0) {
+				Motor_Run(atoi(lex_p[1]), atoi(lex_p[2]));
+				COMMAND_DONE;
+			}
+			else if (strcmp(lex_p[0],"pong") == 0) {
 				COMMAND_DONE;
 			}
 			else COMMAND_DONE;				
