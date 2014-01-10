@@ -241,7 +241,7 @@ void Motor_Run(int left, int right)
 
 void Turret_Run(unsigned int hor_pos, unsigned int vert_pos)
 {
-	if ((SERVO_MAX_PULSE_TIME * 2 - 1 < hor_pos + vert_pos) && (hor_pos + vert_pos < SERVO_MIN_PULSE_TIME * 2 + 1)) {
+	if ((SERVO_MAX_PULSE_TIME * 2 + 1 > hor_pos + vert_pos) && (hor_pos + vert_pos > SERVO_MIN_PULSE_TIME * 2 - 1)) {
 		servo_pulse_time[TURR_HOR_SERVO] = hor_pos;
 		servo_pulse_time[TURR_VERT_SERVO] = vert_pos;
 		Servo_UpdateArrays();
@@ -278,34 +278,17 @@ ISR(USART_RXC_vect)
 		}		
 	n_butes = 0;
 	}
-
-// 	unsigned char buff=UDR;
-// 	if (n_butes<UART_RX_BUFF_SIZE-1) 
-// 	{	
-// 	if (buff!=0x0D) uart_rx_buff[n_butes++]=buff; 
-// 		else 
-// 		{ 		
-// 				//if (global_state&(1<<UART_rx_complete_bit)==0) // åñëè ïðåäûäóùàÿ ïîñûëêà îáðàáîòàíà
-// 				//{
-// 					uart_rx_buff[n_butes]=0; 
-// 					global_state|=(1<<UART_rx_complete_bit);
-// 					global_state&=~(1<<UART_wrong_package_bit);
-// 					strcpy(uart_rx_packet, uart_rx_buff);		
-// 				//}			
-// 				//else
-// 				//{
-// 				//	global_state|=(1<<UART_wrong_package_bit); //èíà÷å òåðÿåì ïðèøåäøèé ïàêåò
-// 				//}					
-// 		n_butes=0;
-// 		}	
-// 	}
-// 	else global_state|=(1<<UART_buffoverflow_bit);
 }
 
 int main(void)
 {
+	/* Power supply for UART2COM adapter on PD2 */
+	DDRD |= (1<<PD2);
+	PORTD |= (1<<PD2);
+
 	UART_Init(MYUBRR);
 	MOTOR_INIT;
+	Servo_TimerInit();
 	sei();
     while(1) {
 		if (IS_NEW_COMMAND) {
@@ -318,12 +301,8 @@ int main(void)
 				Motor_Run(atoi(lex_p[1]), atoi(lex_p[2]));
 				COMMAND_DONE;
 			}
-			else if (strcmp(lex_p[0], "TurrLR") == 0) {
+			else if (strcmp(lex_p[0], "TurrHV") == 0) {
 				Turret_Run(atoi(lex_p[1]), atoi(lex_p[2]));
-				COMMAND_DONE;
-			}
-			else if (strcmp(lex_p[0], "TurrUD") == 0) {
-				Motor_Run(atoi(lex_p[1]), atoi(lex_p[2]));
 				COMMAND_DONE;
 			}
 			else if (strcmp(lex_p[0], "pong") == 0) {

@@ -12,15 +12,17 @@
 #define TURR_VERT_SERVO	1 	//Индекс сервомашики вертикального отклонения турели
 #define TURR_HOR_SERVO	2 	//Индекс сервомашики горизонтального отклонения турели
 
-#define SRVPORT1 PORTB
-#define SRVPIN1 2
-#define SRVPORT2 PORTB
-#define SRVPIN2 3
-#define SRVPORT3 PORTB
+#define SRVPORT1 	PORTD
+#define SRVPIN1 	PD3
+#define SRVPORT2 	PORTD
+#define SRVPIN2 	PD4
+/* Unused pins
+#define SRVPORT3 PORTD
 #define SRVPIN3 4
+*/
 
-#define SERVO_MIN_PULSE_TIME	651		// Нижнее ограничение ширины импульса управляющего сигнала для сервомашинок
-#define SERVO_MAX_PULSE_TIME	1520	// Верхнее ограничение ширины импульса управляющего сигнала для сервомашинок
+#define SERVO_MIN_PULSE_TIME	520		// Нижнее ограничение ширины импульса управляющего сигнала для сервомашинок
+#define SERVO_MAX_PULSE_TIME	1216	// Верхнее ограничение ширины импульса управляющего сигнала для сервомашинок
 
 unsigned int servo_pulse_time[COUNT_OF_SERVOS+1];  		//pulse_time[n] массив управляющих длительностей n-1 сервомашинок
 
