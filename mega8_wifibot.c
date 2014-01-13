@@ -104,8 +104,8 @@ unsigned char global_state = 0; // Ïåðåìåííàÿ ôëàãîâ ñîñòî�
 						} while(0)
 						
 #define LEFT			do {							\
-						INPUT1_PORT &= ~(1<<INPUT1_PIN);	\
-						INPUT2_PORT |= (1<<INPUT2_PIN);	\
+						INPUT2_PORT &= ~(1<<INPUT2_PIN);	\
+						INPUT1_PORT |= (1<<INPUT1_PIN);	\
 						INPUT3_PORT |= (1<<INPUT3_PIN);	\
 						INPUT4_PORT &= ~(1<<INPUT4_PIN);	\
 						} while(0)
