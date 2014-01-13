@@ -16,7 +16,7 @@ void wait_us(unsigned int us)   //имитация задержки (в 1.3815 �
 		};
 }
 
-// AVR mega8 Timer 0 overflow interrupt service routine
+// AVR mega8 Timer2 overflow interrupt service routine
 ISR(TIMER2_COMP_vect)
 {
 	unsigned char i;
