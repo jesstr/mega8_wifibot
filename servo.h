@@ -14,8 +14,10 @@
 
 #define SRVPORT1 	PORTD
 #define SRVPIN1 	PD3
+#define SRVDDR1 	DDRD
 #define SRVPORT2 	PORTD
 #define SRVPIN2 	PD4
+#define SRVDDR2 	DDRD
 /* Unused pins
 #define SRVPORT3 PORTD
 #define SRVPIN3 4
@@ -27,8 +29,7 @@
 unsigned int servo_pulse_time[COUNT_OF_SERVOS+1];  		//pulse_time[n] массив управляющих длительностей n-1 сервомашинок
 
 void Servo_UpdateArrays(void);
-void Servo_InitPulses(void);
 void Servo_Demo(void);
-void Servo_TimerInit(void);
+void Servo_Init(void);
 
 #endif /* SERVO_H_ */

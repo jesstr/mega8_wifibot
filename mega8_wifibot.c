@@ -103,8 +103,9 @@ int main(void)
 
 	UART_Init(MYUBRR);
 	MOTOR_INIT;
-	Servo_TimerInit();
+	Servo_Init();
 	sei();
+
     while(1) {
 		if (IS_NEW_COMMAND) {
 			command = strtok(uart_rx_packet, "=,");

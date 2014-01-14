@@ -7,6 +7,9 @@ unsigned int delta_time[4];		//delta_time[n] массив разниц длит�
 unsigned char sorted_index[4];	//упорядоченные индексы массива servo_pulse_time[n]
 
 
+void Servo_TimerInit(void);
+void Servo_InitPulses(void);
+
 void wait_us(unsigned int us)   //имитация задержки (в 1.3815 раз медленне чем delay_us() при 8МГц и локальной переменной j) -  us*1.3815=мкс задержки
 {                               //имитация задержки (в 1.628 раз медленне чем delay_us() при 8МГц и глобальной переменной j) -  us*1.628=мкс задержки
 	unsigned int j;
@@ -139,32 +142,20 @@ void Servo_TimerInit(void)
 	TCNT2 = 0x00;
 	OCR2 = 156; // (~50Гц)
 	TIMSK |= (1<<OCIE2);
-
-	Servo_InitPulses();
-	Servo_UpdateArrays();
-
-	sei();
-
-#if 0
-	// Timer/Counter 0 initialization
-	// Clock source: System Clock
-	// Clock value: 7,813 kHz
-	// Mode: CTC top=OCR0A
-	// OC0A output: Disconnected
-	// OC0B output: Disconnected
-	TCCR0A=0x02;
-	TCCR0B=0x05;
-	TCNT0=0x00;
-	OCR0A=0x9C;    //156 (~50Гц)
-	OCR0B=0x00;
-
-	// Timer(s)/Counter(s) Interrupt(s) initialization
-	TIMSK0=0x02;
-
-	Servo_InitPulses();
-	Servo_UpdateArrays();
-
-	sei();
-#endif
 }
 
+/* Port initialization routine */
+void Servo_PortInit(void)
+{
+	SRVDDR1 |= (1<<SRVPIN1);
+	SRVDDR2 |= (1<<SRVPIN2);
+}
+
+/* Main initialization routine */
+void Servo_Init(void)
+{
+	Servo_PortInit();
+	Servo_TimerInit();
+	Servo_InitPulses();
+	Servo_UpdateArrays();
+}
