@@ -115,7 +115,7 @@ int main(void)
 			}
 			if (strcmp(lex_p[0], "DrvLR") == 0) {
 				//Motor_DirectRun(atoi(lex_p[1]), atoi(lex_p[2]));
-				Motor_TimerTickCount = 0;
+				Motor_Run();
 				COMMAND_DONE;
 			}
 			else if (strcmp(lex_p[0], "TurrHV") == 0) {
