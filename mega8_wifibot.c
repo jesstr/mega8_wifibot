@@ -87,11 +87,12 @@ ISR(TIMER0_OVF_vect)
 		val++;
 	}
 	else {
-		Motor_TimerTickCount++;
+		Motor_TimerTick++;
 		val = 0;
 	}
-	if (Motor_TimerTickCount >= MOTOR_TIMER_KeyPressedRunTime) {
+	if (Motor_TimerTick >= MOTOR_TIMER_KeyPressedRunTime) {
 		MOTOR_TimerStop;
+		MOTOR_FREEWHEEL;
 	}
 }
 
@@ -103,6 +104,7 @@ int main(void)
 
 	UART_Init(MYUBRR);
 	MOTOR_INIT;
+	Motor_TimerInit();
 	Servo_Init();
 	sei();
 
@@ -113,9 +115,14 @@ int main(void)
 			while( (command = strtok(NULL, "=,")) ) {
 				lex_p[lex_n++] = command;
 			}
+			/* Direct motor run:  DrvLR=<time left, ms>,<time right, ms> */
 			if (strcmp(lex_p[0], "DrvLR") == 0) {
-				//Motor_DirectRun(atoi(lex_p[1]), atoi(lex_p[2]));
-				Motor_Run();
+				Motor_DirectRun(atoi(lex_p[1]), atoi(lex_p[2]));
+				COMMAND_DONE;
+			}
+			/* Timer controlled motor run:  DrvRun=[L|R|F|B],<speed, percents>,<time, 1=100ms> */
+			else if (strcmp(lex_p[0], "DrvRun") == 0) {
+				Motor_Run(lex_p[1], atoi(lex_p[2]), atoi(lex_p[3]));
 				COMMAND_DONE;
 			}
 			else if (strcmp(lex_p[0], "TurrHV") == 0) {

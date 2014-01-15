@@ -5,8 +5,10 @@
  *      Author: embox
  */
 #include <avr/io.h>
+#include <util/delay.h>
 #include "motor.h"
 #include "wait.h"
+
 
 void Motor_DirectRun(int left, int right)
 {
@@ -31,13 +33,23 @@ void Motor_DirectRun(int left, int right)
 void Motor_TimerInit(void)
 {
 	TIMSK |= (1<<TOIE0);
-	Motor_TimerTickCount = 0;
-	MOTOR_TimerStart;
+	Motor_TimerTick = 0;
 }
 
-void Motor_Run(void)
+void Motor_Run(char* direction, unsigned char speed, unsigned char time)
 {
-	Motor_TimerTickCount = 0;
+	switch (direction[0]) {
+		case 'L': MOTOR_LEFT; break;
+		case 'R': MOTOR_RIGHT; break;
+		case 'F': MOTOR_FORWARDRUN; break;
+		case 'B': MOTOR_BACKWARDRUN; break;
+		default: PORTD &= ~(1<<PD2); _delay_ms(100); PORTD |= (1<<PD2); break;
+	}
+
+
+
+
+	Motor_TimerTick = 0;
 	MOTOR_TimerStart;
 }
 

@@ -132,18 +132,23 @@
 							TCNT0 = 0x00; 					\
 							TCCR0 |= (1<<CS02)|(1<<CS00);	/* (~30Гц) on 8MHz */ \
 							} while(0)
-#define MOTOR_TimerStop		TCCR0 &= ~(1<<CS02)|(1<<CS00);
+//#define MOTOR_TimerStop		TCCR0 &= ~(1<<CS02)|(1<<CS00);
+
+#define MOTOR_TimerStop		do {	\
+							TCCR0 &= ~(1<<CS02); \
+							TCCR0 &= ~(1<<CS00); \
+							} while(0)
 
 #define MOTOR_TIMER_IRQsPerPeriod		3 		/* (~100ms), Number of Timer irgs which considered as one period */
 #define MOTOR_TIMER_KeyPressedRunTime	1		/* 1 period = (~100ms), Number of Timer periods to run motors when key was pressed	*/
 
-volatile unsigned long Motor_TimerTickCount; 	/* Current Timer ticks count */
+volatile unsigned long Motor_TimerTick; 	/* Timer ticks */
 //unsigned long Motor_TimerRunTime = 0;
 
 
 void Motor_DirectRun(int left, int right);
 void Motor_TimerInit(void);
-void Motor_TimerRun(int left, int right);
+void Motor_Run(char* direction, unsigned char speed, unsigned char time);
 
 #endif /* MOTOR_H_ */
 
