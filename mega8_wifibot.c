@@ -79,8 +79,7 @@ ISR(USART_RXC_vect)
 	}
 }
 
-/* Motor_Timer IRQ
-* AVR mega8 Timer0 overflow interrupt service routine */
+/* Motor_Timer interrupt routine (Timer0 overflow IRQ) */
 ISR(TIMER0_OVF_vect)
 {
 	if (Motor_TimerCurrentTick < MOTOR_TIMER_nTicksForKeyPressedRun) {
@@ -88,7 +87,11 @@ ISR(TIMER0_OVF_vect)
 	}
 	else {
 		MOTOR_TimerReset;
-		MOTOR_FREEWHEEL;
+		MOTOR_PWMStop;
+		OCR1A = 0;
+		OCR1B = 0;
+		BOTH_DISABLE;
+		//MOTOR_FREEWHEEL;
 	}
 }
 
@@ -102,6 +105,7 @@ int main(void)
 	UART_Init(MYUBRR);
 	MOTOR_INIT;
 	Motor_TimerInit();
+	Motor_PWMInit();
 	Servo_Init();
 	sei();
 

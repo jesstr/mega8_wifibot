@@ -45,6 +45,18 @@ void Motor_Run(char* direction, unsigned char speed, unsigned char time)
 		case 'B': MOTOR_BACKWARDRUN; break;
 		default: PORTD &= ~(1<<PD2); _delay_ms(100); PORTD |= (1<<PD2); break;
 	}
+	OCR1A = 255 - speed;
+	OCR1B = 255 - speed;
+	MOTOR_PWMStart;
 	MOTOR_TimerStart;
 }
 
+/* AVR mega8 Timer1 initialization */
+void Motor_PWMInit(void)
+{
+	TCCR1A |= (1<<COM1A1)|(1<<COM1A0)|(1<<COM1B1)|(1<<COM1B0)|(1<<WGM10); /* PWM, Phase Correct, 8-bit, OC1A and OC1B are connected */
+	//TCCR1B |= (1<<CS10); /* No prescaling, PWM frequency is 15.625kHz  */
+	TCNT1 = 0;
+	OCR1A = 0;
+	OCR1B = 0;
+}

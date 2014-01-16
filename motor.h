@@ -9,29 +9,29 @@
 #define MOTOR_H_
 
 // Íàçíà÷åíèå âûâîäîâ äëÿ äðàéâåðà äâèãàòåëåé
-#define CE1_PIN		PD6
-#define CE1_PORT 	PORTD
-#define CE1_DDR 	DDRD
+#define CE1_PIN		PB1
+#define CE1_PORT 	PORTB
+#define CE1_DDR 	DDRB
 
-#define CE2_PIN		PD6
-#define CE2_PORT 	PORTD
-#define CE2_DDR 	DDRD
+#define CE2_PIN		PB2
+#define CE2_PORT 	PORTB
+#define CE2_DDR 	DDRB
 
-#define INPUT1_PIN	PB1
-#define INPUT1_PORT PORTB
-#define INPUT1_DDR 	DDRB
+#define INPUT1_PIN	PC5
+#define INPUT1_PORT PORTC
+#define INPUT1_DDR 	DDRC
 
-#define INPUT2_PIN	PB2
-#define INPUT2_PORT PORTB
-#define INPUT2_DDR 	DDRB
+#define INPUT2_PIN	PC4
+#define INPUT2_PORT PORTC
+#define INPUT2_DDR 	DDRC
 
-#define INPUT3_PIN	PB0
-#define INPUT3_PORT PORTB
-#define INPUT3_DDR 	DDRB
+#define INPUT3_PIN	PC3
+#define INPUT3_PORT PORTC
+#define INPUT3_DDR 	DDRC
 
-#define INPUT4_PIN	PD7
-#define INPUT4_PORT PORTD
-#define INPUT4_DDR 	DDRD
+#define INPUT4_PIN	PC2
+#define INPUT4_PORT PORTC
+#define INPUT4_DDR 	DDRC
 
 // Ìàêðîñû äëÿ äðàéâåðà äâèãàòåëåé
 #define CHIP1_DISABLE	CE1_PORT &= ~(1<<CE1_PIN);
@@ -139,6 +139,9 @@
 							TCCR0 |= (1<<CS02)|(1<<CS00); 	\
 							} while(0)
 
+#define MOTOR_PWMStart 		TCCR1B |= (1<<CS10);	 /* No prescaling, PWM frequency is 15.625kHz  */
+#define MOTOR_PWMStop 		TCCR1B &= ~(1<<CS10);
+
 #define MOTOR_TimerStop		TCCR0 &= ~((1<<CS02)|(1<<CS00));
 
 #define MOTOR_TIMER_nTicksForKeyPressedRun	3	/* 1 = (~33ms on 8MHz and 1024 divider), Number of Timer periods to run motors when key was pressed	*/
@@ -149,6 +152,7 @@ volatile unsigned long Motor_TimerCurrentTick; 	/* Timer ticks */
 void Motor_DirectRun(int left, int right);
 void Motor_TimerInit(void);
 void Motor_Run(char* direction, unsigned char speed, unsigned char time);
+void Motor_PWMInit(void);
 
 #endif /* MOTOR_H_ */
 
