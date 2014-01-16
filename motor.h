@@ -55,32 +55,32 @@
 						RIGHT_DISABLE; 	\
 						} while(0)
 
-#define FORWARD			do { 								\
-						INPUT1_PORT &= ~(1<<INPUT1_PIN);	\
-						INPUT2_PORT |= (1<<INPUT2_PIN);		\
-						INPUT3_PORT |= (1<<INPUT3_PIN);		\
-						INPUT4_PORT &= ~(1<<INPUT4_PIN);	\
+#define FORWARD			do { 							\
+						INPUT1_PORT &= ~(1<<INPUT1_PIN);\
+						INPUT2_PORT |= (1<<INPUT2_PIN);	\
+						INPUT3_PORT |= (1<<INPUT3_PIN);	\
+						INPUT4_PORT &= ~(1<<INPUT4_PIN);\
 						} while(0)
 
 #define BACKWARD		do { 							\
-						INPUT2_PORT &= ~(1<<INPUT2_PIN);	\
+						INPUT2_PORT &= ~(1<<INPUT2_PIN);\
 						INPUT1_PORT |= (1<<INPUT1_PIN);	\
 						INPUT4_PORT |= (1<<INPUT4_PIN);	\
-						INPUT3_PORT &= ~(1<<INPUT3_PIN);	\
+						INPUT3_PORT &= ~(1<<INPUT3_PIN);\
 						} while(0)
 
 #define RIGHT			do { 							\
-						INPUT1_PORT &= ~(1<<INPUT1_PIN);	\
+						INPUT1_PORT &= ~(1<<INPUT1_PIN);\
 						INPUT2_PORT |= (1<<INPUT2_PIN);	\
 						INPUT4_PORT |= (1<<INPUT4_PIN);	\
-						INPUT3_PORT &= ~(1<<INPUT3_PIN);	\
+						INPUT3_PORT &= ~(1<<INPUT3_PIN);\
 						} while(0)
 
 #define LEFT			do {							\
-						INPUT2_PORT &= ~(1<<INPUT2_PIN);	\
+						INPUT2_PORT &= ~(1<<INPUT2_PIN);\
 						INPUT1_PORT |= (1<<INPUT1_PIN);	\
 						INPUT3_PORT |= (1<<INPUT3_PIN);	\
-						INPUT4_PORT &= ~(1<<INPUT4_PIN);	\
+						INPUT4_PORT &= ~(1<<INPUT4_PIN);\
 						} while(0)
 
 #define BRAKE			do {							\
@@ -92,8 +92,8 @@
 
 #define MOTOR_INIT		do {							\
 						BOTH_DISABLE;					\
-						CE1_DDR |= (1<<CE1_PIN);			\
-						CE2_DDR |= (1<<CE2_PIN);			\
+						CE1_DDR |= (1<<CE1_PIN);		\
+						CE2_DDR |= (1<<CE2_PIN);		\
 						INPUT1_DDR |= (1<<INPUT1_PIN);	\
 						INPUT2_DDR |= (1<<INPUT2_PIN);	\
 						INPUT3_DDR |= (1<<INPUT3_PIN);	\
@@ -128,22 +128,22 @@
 							BOTH_DISABLE;	\
 							} while(0)
 
+#define MOTOR_TimerReset 	do {					\
+							TCNT0 = 0; 				\
+							Motor_TimerCurrentTick = 0;	\
+							} while(0)
+
 #define MOTOR_TimerStart 	do {							\
-							TCNT0 = 0x00; 					\
-							TCCR0 |= (1<<CS02)|(1<<CS00);	/* (~30Гц) on 8MHz */ \
-							} while(0)
-//#define MOTOR_TimerStop		TCCR0 &= ~(1<<CS02)|(1<<CS00);
-
-#define MOTOR_TimerStop		do {	\
-							TCCR0 &= ~(1<<CS02); \
-							TCCR0 &= ~(1<<CS00); \
+							MOTOR_TimerReset;				\
+							/* 1024 divider, (~30Гц) on 8MHz */ 			\
+							TCCR0 |= (1<<CS02)|(1<<CS00); 	\
 							} while(0)
 
-#define MOTOR_TIMER_IRQsPerPeriod		3 		/* (~100ms), Number of Timer irgs which considered as one period */
-#define MOTOR_TIMER_KeyPressedRunTime	1		/* 1 period = (~100ms), Number of Timer periods to run motors when key was pressed	*/
+#define MOTOR_TimerStop		TCCR0 &= ~((1<<CS02)|(1<<CS00));
 
-volatile unsigned long Motor_TimerTick; 	/* Timer ticks */
-//unsigned long Motor_TimerRunTime = 0;
+#define MOTOR_TIMER_nTicksForKeyPressedRun	3	/* 1 = (~33ms on 8MHz and 1024 divider), Number of Timer periods to run motors when key was pressed	*/
+
+volatile unsigned long Motor_TimerCurrentTick; 	/* Timer ticks */
 
 
 void Motor_DirectRun(int left, int right);

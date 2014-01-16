@@ -33,7 +33,7 @@ void Motor_DirectRun(int left, int right)
 void Motor_TimerInit(void)
 {
 	TIMSK |= (1<<TOIE0);
-	Motor_TimerTick = 0;
+	MOTOR_TimerReset;
 }
 
 void Motor_Run(char* direction, unsigned char speed, unsigned char time)
@@ -45,11 +45,6 @@ void Motor_Run(char* direction, unsigned char speed, unsigned char time)
 		case 'B': MOTOR_BACKWARDRUN; break;
 		default: PORTD &= ~(1<<PD2); _delay_ms(100); PORTD |= (1<<PD2); break;
 	}
-
-
-
-
-	Motor_TimerTick = 0;
 	MOTOR_TimerStart;
 }
 

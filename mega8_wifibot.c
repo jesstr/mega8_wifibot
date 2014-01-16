@@ -79,23 +79,20 @@ ISR(USART_RXC_vect)
 	}
 }
 
-/* AVR mega8 Timer0 overflow interrupt service routine */
+/* Motor_Timer IRQ
+* AVR mega8 Timer0 overflow interrupt service routine */
 ISR(TIMER0_OVF_vect)
 {
-	static unsigned char val;
-	if (val < MOTOR_TIMER_IRQsPerPeriod) {
-		val++;
+	if (Motor_TimerCurrentTick < MOTOR_TIMER_nTicksForKeyPressedRun) {
+		Motor_TimerCurrentTick++;
 	}
 	else {
-		Motor_TimerTick++;
-		val = 0;
-	}
-	if (Motor_TimerTick >= MOTOR_TIMER_KeyPressedRunTime) {
-		MOTOR_TimerStop;
+		MOTOR_TimerReset;
 		MOTOR_FREEWHEEL;
 	}
 }
 
+/* Main routine */
 int main(void)
 {
 	/* Power supply for UART2COM adapter on PD2 */
@@ -136,4 +133,4 @@ int main(void)
 		}
 		_delay_us(2);
 	}
-}
+} /* main() */
