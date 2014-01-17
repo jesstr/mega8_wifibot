@@ -39,11 +39,15 @@ void Motor_TimerInit(void)
 void Motor_Run(char* direction, unsigned char speed, unsigned char time)
 {
 	switch (direction[0]) {
-		case 'L': MOTOR_LEFT; break;
-		case 'R': MOTOR_RIGHT; break;
-		case 'F': MOTOR_FORWARDRUN; break;
-		case 'B': MOTOR_BACKWARDRUN; break;
-		default: PORTD &= ~(1<<PD2); _delay_ms(100); PORTD |= (1<<PD2); break;
+		case 'L' : MOTOR_LEFT; break;
+		case 'R' : MOTOR_RIGHT; break;
+		case 'F' : MOTOR_FORWARDRUN; break;
+		case 'B' : MOTOR_BACKWARDRUN; break;
+		default :
+			PORTD &= ~(1<<PD2);
+			_delay_ms(100);
+			PORTD |= (1<<PD2);
+			break;
 	}
 	OCR1A = 255 - speed;
 	OCR1B = 255 - speed;
