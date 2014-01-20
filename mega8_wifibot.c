@@ -87,10 +87,10 @@ ISR(TIMER0_OVF_vect)
 	}
 	else {
 		MOTOR_TimerReset;
-		MOTOR_PWMStop;
+		//MOTOR_PWMStop;
 		OCR1A = 0;
 		OCR1B = 0;
-		BOTH_DISABLE;
+		//BOTH_DISABLE;
 		//MOTOR_FREEWHEEL;
 	}
 }
