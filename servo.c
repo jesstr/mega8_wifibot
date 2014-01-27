@@ -26,11 +26,13 @@ ISR(TIMER2_COMP_vect)
 
 	SRVPORT1 |= (1<<SRVPIN1);
 	SRVPORT2 |= (1<<SRVPIN2);
+	SRVPORT3 |= (1<<SRVPIN3);
 	for (i = 1; i <= COUNT_OF_SERVOS; i++) {
 		wait_us(delta_time[i]);
 		switch (sorted_index[i]) {
 			case 1: SRVPORT1 &= ~(1<<SRVPIN1); break;
 			case 2: SRVPORT2 &= ~(1<<SRVPIN2); break;
+			case 2: SRVPORT3 &= ~(1<<SRVPIN3); break;
 		}
 	}
 	PORTC ^= 0x01;
@@ -73,9 +75,9 @@ void Servo_UpdateArrays(void)
 void Servo_InitPulses(void)
 {
 	servo_pulse_time[0]=0;              //651 - 0град(900мкс), 1085 - 30град(1500мкс), 1520 - 60град(2100мкс)
-	servo_pulse_time[1]=520;            //552 - 0град(900мкс), 921 - 30град(1500мкс), 1290 - 60град(2100мкс)
-	servo_pulse_time[2]=520;			//520 - 0град(900мкс), 868 - 30град(1500мкс), 1216 - 60град(2100мкс)	<-	current value
-	servo_pulse_time[3]=520;
+	servo_pulse_time[1]=800;            //552 - 0град(900мкс), 921 - 30град(1500мкс), 1290 - 60град(2100мкс)
+	servo_pulse_time[2]=800;			//520 - 0град(900мкс), 868 - 30град(1500мкс), 1216 - 60град(2100мкс)	<-	current value
+	servo_pulse_time[3]=800;
 	sorted_index[0]=0;
 	sorted_index[1]=1;
 	sorted_index[2]=2;
@@ -149,6 +151,7 @@ void Servo_PortInit(void)
 {
 	SRVDDR1 |= (1<<SRVPIN1);
 	SRVDDR2 |= (1<<SRVPIN2);
+	SRVDDR3 |= (1<<SRVPIN3);
 }
 
 /* Main initialization routine */

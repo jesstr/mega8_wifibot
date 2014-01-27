@@ -47,6 +47,14 @@ void Turret_Run(unsigned int hor_pos, unsigned int vert_pos)
 	}
 }
 
+void Steering_Run(unsigned int pos)
+{
+	if ((SERVO_MAX_PULSE_TIME > pos) && (pos > SERVO_MIN_PULSE_TIME)) {
+		servo_pulse_time[STEERING_SERVO] = pos;
+		Servo_UpdateArrays();
+	}
+}
+
 // Îáðàáîòêà ïðåðûâàíèÿ ïî ïðèåìó áàéòà ïî UART (ïîìåùàåòñÿ â ãëàâíûé ìîäóëü)
 ISR(USART_RXC_vect)
 {
@@ -99,8 +107,10 @@ ISR(TIMER0_OVF_vect)
 int main(void)
 {
 	/* Power supply for UART2COM adapter on PD2 */
+	/*
 	DDRD |= (1<<PD2);
 	PORTD |= (1<<PD2);
+	*/
 
 	UART_Init(MYUBRR);
 	MOTOR_INIT;
@@ -124,6 +134,11 @@ int main(void)
 			/* Timer controlled motor run:  DrvRun=[L|R|F|B],<speed, percents>,<time, 1=100ms> */
 			else if (strcmp(lex_p[0], "DrvRun") == 0) {
 				Motor_Run(lex_p[1], atoi(lex_p[2]), atoi(lex_p[3]));
+				COMMAND_DONE;
+			}
+			/* Timer controlled motor run:  SteeringRun=<pos> */
+			else if (strcmp(lex_p[0], "StrRun") == 0) {
+				Steering_Run(lex_p[1]);
 				COMMAND_DONE;
 			}
 			else if (strcmp(lex_p[0], "TurrHV") == 0) {
