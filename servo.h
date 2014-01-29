@@ -21,11 +21,12 @@
 #define SRVDDR2 	DDRD
 #define SRVPORT3 	PORTD
 #define SRVPIN3 	PD2
+#define SRVDDR3		DDRD
 
-#define SERVO_MIN_PULSE_TIME	520		// Нижнее ограничение ширины импульса управляющего сигнала для сервомашинок
-#define SERVO_MAX_PULSE_TIME	1216	// Верхнее ограничение ширины импульса управляющего сигнала для сервомашинок
+#define SERVO_MIN_PULSE_WIDTH	520		// Нижнее ограничение ширины импульса управляющего сигнала для сервомашинок
+#define SERVO_MAX_PULSE_WIDTH	1216	// Верхнее ограничение ширины импульса управляющего сигнала для сервомашинок
 
-unsigned int servo_pulse_time[COUNT_OF_SERVOS+1];  		//pulse_time[n] массив управляющих длительностей n-1 сервомашинок
+unsigned int servo_pulse_width[COUNT_OF_SERVOS+1];  		//pulse_time[n] массив управляющих длительностей n-1 сервомашинок
 
 void Servo_UpdateArrays(void);
 void Servo_Demo(void);

@@ -14,7 +14,7 @@
 #include <avr/interrupt.h>
 #include "uart.h"
 #include "servo.h"
-#include "motor.h"
+#include "chassis.h"
 #include "wait.h"
 
 #define UART_RX_BUFF_SIZE	32	// Ðàçìåð áóôåðà ïðèåìà UART
@@ -38,19 +38,11 @@ unsigned char global_state = 0; // Ïåðåìåííàÿ ôëàãîâ ñîñòî�
 #define COMMAND_DONE { global_state &= ~(1<<UART_rx_complete_bit); lex_n = 0; } // Ñáðîñ ôëàãà íîâîé êîìàíäû ïîñëå îáðàáîòêè, ñáðîñ èíäåêñà ìàññèâà ëåêñåì
 
 
-void Turret_Run(unsigned int hor_pos, unsigned int vert_pos)
+void Turret_Move(unsigned int hor_pos, unsigned int vert_pos)
 {
-	if ((SERVO_MAX_PULSE_TIME * 2 + 1 > hor_pos + vert_pos) && (hor_pos + vert_pos > SERVO_MIN_PULSE_TIME * 2 - 1)) {
-		servo_pulse_time[TURR_HOR_SERVO] = hor_pos;
-		servo_pulse_time[TURR_VERT_SERVO] = vert_pos;
-		Servo_UpdateArrays();
-	}
-}
-
-void Steering_Run(unsigned int pos)
-{
-	if ((SERVO_MAX_PULSE_TIME > pos) && (pos > SERVO_MIN_PULSE_TIME)) {
-		servo_pulse_time[STEERING_SERVO] = pos;
+	if ((SERVO_MAX_PULSE_WIDTH * 2 + 1 > hor_pos + vert_pos) && (hor_pos + vert_pos > SERVO_MIN_PULSE_WIDTH * 2 - 1)) {
+		servo_pulse_width[TURR_HOR_SERVO] = hor_pos;
+		servo_pulse_width[TURR_VERT_SERVO] = vert_pos;
 		Servo_UpdateArrays();
 	}
 }
@@ -87,19 +79,21 @@ ISR(USART_RXC_vect)
 	}
 }
 
-/* Motor_Timer interrupt routine (Timer0 overflow IRQ) */
+/* Chassis_Timer interrupt routine (Timer0 overflow IRQ) */
 ISR(TIMER0_OVF_vect)
 {
-	if (Motor_TimerCurrentTick < MOTOR_TIMER_nTicksForKeyPressedRun) {
-		Motor_TimerCurrentTick++;
+	if (Chassis_TimerCurrentTick < Chassis_TimerNTicksToRun) {
+		Chassis_TimerCurrentTick++;
 	}
 	else {
-		MOTOR_TimerReset;
-		//MOTOR_PWMStop;
+		CHASSIS_TIMER_RESET;
+		#ifdef _3WHEEL_2WD_
 		OCR1A = 0;
 		OCR1B = 0;
-		//BOTH_DISABLE;
-		//MOTOR_FREEWHEEL;
+		#endif
+		#ifdef _4WHEEL_2WD_
+		OCR1A = 0;
+		#endif
 	}
 }
 
@@ -113,9 +107,7 @@ int main(void)
 	*/
 
 	UART_Init(MYUBRR);
-	MOTOR_INIT;
-	Motor_TimerInit();
-	Motor_PWMInit();
+	Chassis_Init();
 	Servo_Init();
 	sei();
 
@@ -126,26 +118,35 @@ int main(void)
 			while( (command = strtok(NULL, "=,")) ) {
 				lex_p[lex_n++] = command;
 			}
-			/* Direct motor run:  DrvLR=<time left, ms>,<time right, ms> */
-			if (strcmp(lex_p[0], "DrvLR") == 0) {
-				Motor_DirectRun(atoi(lex_p[1]), atoi(lex_p[2]));
+			/* Direct motor run:  "runlr=<time left, ms>,<time right, ms>" */
+			if (strcmp(lex_p[0], "runlr") == 0) {
+				#ifdef _3WHEEL_2WD_
+				Chassis_DirectRun(atoi(lex_p[1]), atoi(lex_p[2]));
+				#endif
+				#ifdef _4WHEEL_2WD_
+				Chassis_DirectRun(atoi(lex_p[1]));
+				#endif
 				COMMAND_DONE;
 			}
-			/* Timer controlled motor run:  DrvRun=[L|R|F|B],<speed, percents>,<time, 1=100ms> */
-			else if (strcmp(lex_p[0], "DrvRun") == 0) {
-				Motor_Run(lex_p[1], atoi(lex_p[2]), atoi(lex_p[3]));
+			/* Non-blocking motor run:  "run=[L|R|F|B],<speed, percents>,<time, 1=100ms>" */
+			else if (strcmp(lex_p[0], "run") == 0) {
+				Chassis_Run(lex_p[1], atoi(lex_p[2]), atoi(lex_p[3]));
 				COMMAND_DONE;
 			}
-			/* Timer controlled motor run:  SteeringRun=<pos> */
-			else if (strcmp(lex_p[0], "StrRun") == 0) {
-				Steering_Run(lex_p[1]);
+			#ifdef _4WHEEL_2WD_
+			/* Servo steering:  "steer=<pulse width>" */
+			else if (strcmp(lex_p[0], "steer") == 0) {
+				Chassis_Steer(atoi(lex_p[1]));
 				COMMAND_DONE;
 			}
-			else if (strcmp(lex_p[0], "TurrHV") == 0) {
-				Turret_Run(atoi(lex_p[1]), atoi(lex_p[2]));
+			#endif
+			/* Turret moves :  "turr=<horizontal pulse width>,<vertical pulse width>" */
+			else if (strcmp(lex_p[0], "turr") == 0) {
+				Turret_Move(atoi(lex_p[1]), atoi(lex_p[2]));
 				COMMAND_DONE;
 			}
-			else if (strcmp(lex_p[0], "pong") == 0) {
+			/* TODO develop ping-pong functionality */
+			else if (strcmp(lex_p[0], "ping") == 0) {
 				COMMAND_DONE;
 			}
 			else COMMAND_DONE;
