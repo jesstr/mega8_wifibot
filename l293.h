@@ -8,6 +8,8 @@
 #ifndef L293_H_
 #define L293_H_
 
+#include <avr/io.h>
+
 // Íàçíà÷åíèå âûâîäîâ äëÿ äðàéâåðà äâèãàòåëåé
 #define CE1_PIN		PB1
 #define CE1_PORT 	PORTB

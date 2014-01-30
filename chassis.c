@@ -83,6 +83,7 @@ void Chassis_Run(char* direction, unsigned char speed, unsigned char time)
 }
 #endif
 
+/* Chassis steering according to passed pulse width */
 void Chassis_Steer(unsigned short width)
 {
 	if ((SERVO_MAX_PULSE_WIDTH > width) && (width > SERVO_MIN_PULSE_WIDTH)) {

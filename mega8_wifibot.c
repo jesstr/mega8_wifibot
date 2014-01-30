@@ -15,7 +15,9 @@
 #include "uart.h"
 #include "servo.h"
 #include "chassis.h"
+#include "turret.h"
 #include "wait.h"
+
 
 #define UART_RX_BUFF_SIZE	32	// Ðàçìåð áóôåðà ïðèåìà UART
 #define UART_LEX_MASS_SIZE	4	// Ðàçìåð ìàññèâà ëåêñåì
@@ -37,15 +39,6 @@ unsigned char global_state = 0; // Ïåðåìåííàÿ ôëàãîâ ñîñòî�
 
 #define COMMAND_DONE { global_state &= ~(1<<UART_rx_complete_bit); lex_n = 0; } // Ñáðîñ ôëàãà íîâîé êîìàíäû ïîñëå îáðàáîòêè, ñáðîñ èíäåêñà ìàññèâà ëåêñåì
 
-
-void Turret_Move(unsigned int hor_pos, unsigned int vert_pos)
-{
-	if ((SERVO_MAX_PULSE_WIDTH * 2 + 1 > hor_pos + vert_pos) && (hor_pos + vert_pos > SERVO_MIN_PULSE_WIDTH * 2 - 1)) {
-		servo_pulse_width[TURR_HOR_SERVO] = hor_pos;
-		servo_pulse_width[TURR_VERT_SERVO] = vert_pos;
-		Servo_UpdateArrays();
-	}
-}
 
 // Îáðàáîòêà ïðåðûâàíèÿ ïî ïðèåìó áàéòà ïî UART (ïîìåùàåòñÿ â ãëàâíûé ìîäóëü)
 ISR(USART_RXC_vect)
@@ -109,6 +102,7 @@ int main(void)
 	UART_Init(MYUBRR);
 	Chassis_Init();
 	Servo_Init();
+	Turret_Init();
 	sei();
 
     while(1) {
@@ -143,6 +137,11 @@ int main(void)
 			/* Turret moves :  "turr=<horizontal pulse width>,<vertical pulse width>" */
 			else if (strcmp(lex_p[0], "turr") == 0) {
 				Turret_Move(atoi(lex_p[1]), atoi(lex_p[2]));
+				COMMAND_DONE;
+			}
+			/* Turret fire :  "fire=<duration>" */
+			else if (strcmp(lex_p[0], "fire") == 0) {
+				Turret_Fire(atoi(lex_p[1]));
 				COMMAND_DONE;
 			}
 			/* TODO develop ping-pong functionality */

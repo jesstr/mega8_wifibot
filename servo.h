@@ -5,6 +5,8 @@
  *      Author: embox
  */
 
+#include <avr/io.h>
+
 #ifndef SERVO_H_
 #define SERVO_H_
 

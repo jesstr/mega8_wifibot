@@ -8,6 +8,7 @@
 #ifndef CHASSIS_H_
 #define CHASSIS_H_
 
+#include <avr/io.h>
 #include "l293.h"
 
 /* Definition of chassis scheme. Chassis scheme which is actually used should be uncommented. */
