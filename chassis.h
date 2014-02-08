@@ -112,7 +112,6 @@
 #define MOTOR_DISABLE		CHIP1_DISABLE
 #define MOTOR_ENABLE		CHIP1_ENABLE
 
-
 #define MOTOR_FORWARD		do { 							\
 							INPUT1_PORT &= ~(1<<INPUT1_PIN);\
 							INPUT2_PORT |= (1<<INPUT2_PIN);	\
