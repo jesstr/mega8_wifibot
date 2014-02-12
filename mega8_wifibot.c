@@ -100,7 +100,7 @@ int main(void)
 	*/
 
 	UART_Init(MYUBRR);
-	Chassis_Init();
+	Chassis_Init(); /* we are using _4WHEEL_2WD_ chassis scheme */
 	Servo_Init();
 	Turret_Init();
 	sei();
