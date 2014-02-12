@@ -114,8 +114,6 @@
 
 #define MOTOR_TimerStop		TCCR0 &= ~((1<<CS02)|(1<<CS00));
 
-//#define MOTOR_TIMER_nTicksForKeyPressedRun	3	/* 1 = (~33ms on 8MHz and 1024 divider), Number of Timer periods to run motors when key was pressed	*/
-
 volatile unsigned short MOTOR_TIMER_nTicksForKeyPressedRun;	/* 1 = (~33ms on 8MHz and 1024 divider), Number of Timer periods to run motors when key was pressed	*/
 
 volatile unsigned long Motor_TimerCurrentTick; 	/* Timer ticks */

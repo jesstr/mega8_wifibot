@@ -48,23 +48,18 @@ ISR(USART_RXC_vect)
 	if ((n_butes < UART_RX_BUFF_SIZE - 1) && (buff != 0x0A)) {
 		uart_rx_buff[n_butes++] = buff;
 	}
-	else
-	{
-		if (n_butes >= UART_RX_BUFF_SIZE)
-		{
+	else {
+		if (n_butes >= UART_RX_BUFF_SIZE) {
 			global_state |= (1<<UART_buffoverflow_bit);
 		}
-		else
-		{
-			if ((global_state & (1<<UART_rx_complete_bit)) == 0) // åñëè ïðåäûäóùàÿ ïîñûëêà îáðàáîòàíà
-			{
+		else {
+			if ((global_state & (1<<UART_rx_complete_bit)) == 0) { // åñëè ïðåäûäóùàÿ ïîñûëêà îáðàáîòàíà
 				uart_rx_buff[n_butes] = 0;
 				global_state |= (1<<UART_rx_complete_bit);
 				global_state &= ~(1<<UART_wrong_package_bit);
 				strcpy(uart_rx_packet, uart_rx_buff);
 			}			
-			else
-			{
+			else {
 				global_state |= (1<<UART_wrong_package_bit); //èíà÷å òåðÿåì ïðèøåäøèé ïàêåò
 			}			
 		}		
@@ -98,7 +93,6 @@ int main(void)
 	DDRD |= (1<<PD2);
 	PORTD |= (1<<PD2);
 	*/
-
 	UART_Init(MYUBRR);
 	Chassis_Init(); /* we are using _4WHEEL_2WD_ chassis scheme */
 	Servo_Init();

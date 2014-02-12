@@ -7,6 +7,7 @@
 #include <util/delay.h>
 #include "wait.h"
 
+/* Wait routine, ms */
 void wait_ms(short ms)
 {
 	while(ms > 0)
