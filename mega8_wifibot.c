@@ -20,8 +20,10 @@
 
 
 #define UART_RX_BUFF_SIZE	32	// Ðàçìåð áóôåðà ïðèåìà UART
+#define UART_TX_BUFF_SIZE	32	// Ðàçìåð áóôåðà ïðèåìà UART
 #define UART_LEX_MASS_SIZE	4	// Ðàçìåð ìàññèâà ëåêñåì
 char uart_rx_buff[UART_RX_BUFF_SIZE];	// Áóôåð ïðèåìà UART
+char uart_tx_buff[UART_TX_BUFF_SIZE];	// Áóôåð ïðèåìà UART
 char uart_rx_packet[UART_RX_BUFF_SIZE];	// Ïðèíÿòàÿ ïî UART ïîñûëêà 
 //char lex[UART_LEX_MASS_SIZE][UART_RX_BUFF_SIZE];	// Ìàññèâ ëåêñåì
 char *lex_p[UART_LEX_MASS_SIZE];	// Ìàññèâ óêàçàòåëåé íà ëåêñåìû
@@ -31,14 +33,19 @@ unsigned char lex_n = 0;	// Ñ÷åò÷èê ëåêñåì
 
 unsigned char global_state = 0; // Ïåðåìåííàÿ ôëàãîâ ñîñòîÿíèÿ
 
-#define UART_rx_complete_bit 0 // Ôëàã ïðèåìà UART ïîñûëêè  
-#define UART_buffoverflow_bit 1 // Ôëàã ïåðåïîëíåíèÿ áöôåðà ïðèåìà UART  
-#define UART_wrong_package_bit 2 // Ôëàã ïîòåðÿííîãî(ûõ) áàéòà(îâ) UART ïîñûëêè
+#define UART_rx_complete_bit 	0 // Ôëàã ïðèåìà UART ïîñûëêè
+#define UART_buffoverflow_bit 	1 // Ôëàã ïåðåïîëíåíèÿ áöôåðà ïðèåìà UART
+#define UART_wrong_package_bit 	2 // Ôëàã ïîòåðÿííîãî(ûõ) áàéòà(îâ) UART ïîñûëêè
+#define UART_tx_ready_bit 		3 /* TX data ready flag */
 
-#define IS_NEW_COMMAND global_state&(1<<UART_rx_complete_bit) // Ïðîâåðêà, íåò ëè íîâîé êîìàíäû äëÿ îáðàáîòêè
+#define IS_NEW_COMMAND 		global_state&(1<<UART_rx_complete_bit) // Ïðîâåðêà, íåò ëè íîâîé êîìàíäû äëÿ îáðàáîòêè
 
-#define COMMAND_DONE { global_state &= ~(1<<UART_rx_complete_bit); lex_n = 0; } // Ñáðîñ ôëàãà íîâîé êîìàíäû ïîñëå îáðàáîòêè, ñáðîñ èíäåêñà ìàññèâà ëåêñåì
+#define COMMAND_DONE 		do { \
+							global_state &= ~(1<<UART_rx_complete_bit); \
+							lex_n = 0; \
+							} while(0)	// Ñáðîñ ôëàãà íîâîé êîìàíäû ïîñëå îáðàáîòêè, ñáðîñ èíäåêñà ìàññèâà ëåêñåì
 
+#define IS_DATA_TO_SEND		global_state&(1<<UART_tx_ready_bit) /* TX data ready check */
 
 // Îáðàáîòêà ïðåðûâàíèÿ ïî ïðèåìó áàéòà ïî UART (ïîìåùàåòñÿ â ãëàâíûé ìîäóëü)
 ISR(USART_RXC_vect)
@@ -143,6 +150,9 @@ int main(void)
 				COMMAND_DONE;
 			}
 			else COMMAND_DONE;
+		}
+		if (IS_DATA_TO_SEND) {
+
 		}
 		_delay_us(2);
 	}
