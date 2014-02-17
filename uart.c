@@ -21,10 +21,18 @@ void UART_SendByte(unsigned char byte1)
 /* Send text string over UART */
 void UART_SendString(char *buffer)
 {
-	while (*buffer!=0)
-	{
-		 UART_SendByte(*buffer);
-		 buffer++;
+	while (*buffer!=0) {
+		 UART_SendByte(*buffer++);
+		 //buffer++;
+	}
+}
+
+/* Send data over UART */
+void UART_SendData(char *buffer, unsigned short nbytes)
+{
+	while (nbytes > 0) {
+		UART_SendByte(*buffer++);
+		nbytes--;
 	}
 }
 

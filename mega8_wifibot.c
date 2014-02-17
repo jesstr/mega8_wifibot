@@ -23,11 +23,13 @@
 #define UART_TX_BUFF_SIZE	32	// Ðàçìåð áóôåðà ïðèåìà UART
 #define UART_LEX_MASS_SIZE	4	// Ðàçìåð ìàññèâà ëåêñåì
 char uart_rx_buff[UART_RX_BUFF_SIZE];	// Áóôåð ïðèåìà UART
-char uart_tx_buff[UART_TX_BUFF_SIZE];	// Áóôåð ïðèåìà UART
+char *uart_tx_buff = NULL;				/* UART TX buffer */
+//char uart_tx_buff[UART_TX_BUFF_SIZE];	// Áóôåð ïðèåìà UART
 char uart_rx_packet[UART_RX_BUFF_SIZE];	// Ïðèíÿòàÿ ïî UART ïîñûëêà 
 //char lex[UART_LEX_MASS_SIZE][UART_RX_BUFF_SIZE];	// Ìàññèâ ëåêñåì
 char *lex_p[UART_LEX_MASS_SIZE];	// Ìàññèâ óêàçàòåëåé íà ëåêñåìû
 char *command = NULL;
+char *uart_tx_buff_p = NULL;
 unsigned char n_butes = 0;	// Ñ÷åò÷èê ïðèíÿòûõ ïî UART áàéò
 unsigned char lex_n = 0;	// Ñ÷åò÷èê ëåêñåì
 
@@ -39,13 +41,14 @@ unsigned char global_state = 0; // Ïåðåìåííàÿ ôëàãîâ ñîñòî�
 #define UART_tx_ready_bit 		3 /* TX data ready flag */
 
 #define IS_NEW_COMMAND 		global_state&(1<<UART_rx_complete_bit) // Ïðîâåðêà, íåò ëè íîâîé êîìàíäû äëÿ îáðàáîòêè
-
 #define COMMAND_DONE 		do { \
 							global_state &= ~(1<<UART_rx_complete_bit); \
 							lex_n = 0; \
 							} while(0)	// Ñáðîñ ôëàãà íîâîé êîìàíäû ïîñëå îáðàáîòêè, ñáðîñ èíäåêñà ìàññèâà ëåêñåì
 
-#define IS_DATA_TO_SEND		global_state&(1<<UART_tx_ready_bit) /* TX data ready check */
+#define IS_DATA_TO_SEND		global_state&(1<<UART_tx_ready_bit) 		/* TX data ready check */
+#define DATA_SEND_DONE		global_state &= ~(1<<UART_tx_ready_bit) 	/* TX data ready flag clear */
+#define DATA_SEND_READY		global_state |= (1<<UART_tx_ready_bit)		/* TX data ready flag set */
 
 // Îáðàáîòêà ïðåðûâàíèÿ ïî ïðèåìó áàéòà ïî UART (ïîìåùàåòñÿ â ãëàâíûé ìîäóëü)
 ISR(USART_RXC_vect)
@@ -147,12 +150,15 @@ int main(void)
 			}
 			/* TODO develop ping-pong functionality */
 			else if (strcmp(lex_p[0], "ping") == 0) {
+				uart_tx_buff = "pong";
+				DATA_SEND_READY;
 				COMMAND_DONE;
 			}
 			else COMMAND_DONE;
 		}
 		if (IS_DATA_TO_SEND) {
-
+			UART_SendString(uart_tx_buff);
+			DATA_SEND_DONE;
 		}
 		_delay_us(2);
 	}
