@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "servo.h"
+#include "wait.h"
 
 unsigned int delta_time[4];		//delta_time[n] массив разниц длительностей n-1 сервомашинок по порядку
 unsigned char sorted_index[4];	//упорядоченные индексы массива servo_pulse_width[n]
@@ -10,14 +11,6 @@ unsigned char sorted_index[4];	//упорядоченные индексы ма�
 void Servo_TimerInit(void);
 void Servo_InitPulses(void);
 
-void wait_us(unsigned int us)   //имитация задержки (в 1.3815 раз медленне чем delay_us() при 8МГц и локальной переменной j) -  us*1.3815=мкс задержки
-{                               //имитация задержки (в 1.628 раз медленне чем delay_us() при 8МГц и глобальной переменной j) -  us*1.628=мкс задержки
-	unsigned int j;
-
-	for (j=0; j<us; j++) {
-		_delay_us(1);
-		};
-}
 
 // AVR mega8 Timer2 overflow interrupt service routine
 ISR(TIMER2_COMP_vect)

@@ -9,6 +9,8 @@
 #define WAIT_H_
 
 /* Wait routine, ms */
-void wait_ms(short ms);
+void wait_ms(unsigned short ms);
+/* Wait routine, us */
+void wait_us(unsigned short us);
 
 #endif /* WAIT_H_ */
