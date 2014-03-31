@@ -11,19 +11,19 @@
 #include <avr/io.h>
 #include "l293.h"
 
-#define FIRE_DISABLE			CHIP2_DISABLE
-#define FIRE_ENABLE				CHIP2_ENABLE
+#define GUN_DISABLE				CHIP2_DISABLE
+#define GUN_ENABLE				CHIP2_ENABLE
 
 #define TURRET_GUN_FIRE			do { 							\
 								INPUT3_PORT |= (1<<INPUT3_PIN);	\
 								INPUT4_PORT &= ~(1<<INPUT4_PIN);\
-								FIRE_ENABLE;					\
+								GUN_ENABLE;						\
 								} while(0)
 
-#define TURRET_GUN_STOPFIRE		FIRE_DISABLE
+#define TURRET_GUN_STOPFIRE		GUN_DISABLE
 
 #define GUN_INIT				do {							\
-								FIRE_DISABLE;					\
+								GUN_DISABLE;					\
 								CE2_DDR |= (1<<CE2_PIN);		\
 								} while(0)
 
