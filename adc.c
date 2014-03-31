@@ -11,7 +11,7 @@
 
 
 /* Interrupt on ADC conversion complete */
-ISR (ADC_vect) //оПЕПШБЮМХЕ ОН ГЮБЕПЬЕМХХ ЙНМБЕПРЮЖХХ южо
+ISR(ADC_vect) //оПЕПШБЮМХЕ ОН ГЮБЕПЬЕМХХ ЙНМБЕПРЮЖХХ южо
 {
 unsigned short buf;
 
@@ -31,16 +31,17 @@ void SwitchChannel(unsigned char n_channel)
 }
 
 /* ADC Initialization */
-void ADC_Init(void)
+void ADC_Init(unsigned char n_channel)
 {
 	/* Input pins initialization */
-	ADCDDR1 |= (0 << ADCPIN1);
-	ADCPORT1 |= (0 << ADCPIN1);
+	ADCDDR1 &= ~(1 << ADCPIN1);
+	ADCPORT1 &= ~(1 << ADCPIN1);
 	/* ADC voltage reference is AREF */
 	ADMUX = (0 << REFS0)|(0 << REFS0);
 	/* Clock divider 64, interrupt enabled */
 	ADCSRA = (1 << ADPS2)|(1 << ADPS1)|(0 << ADPS0)|(1 << ADIE);
 	ADC_ENABLE;
+	adc_active_channel = n_channel;
 }
 
 /* Start ADC conversion on selected channel.

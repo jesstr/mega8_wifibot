@@ -17,6 +17,7 @@
 #include "chassis.h"
 #include "turret.h"
 #include "wait.h"
+#include "adc.h"
 
 
 #define UART_RX_BUFF_SIZE	32	// Ðàçìåð áóôåðà ïðèåìà UART
@@ -107,6 +108,7 @@ int main(void)
 	Chassis_Init(); /* we are using _4WHEEL_2WD_ chassis scheme */
 	Servo_Init();
 	Turret_Init();
+	ADC_Init(0);
 	sei();
 
     while(1) {

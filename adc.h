@@ -27,13 +27,13 @@
 
 #define IS_CONVERTION_RUNNING	ADCSRA & (1 << ADSC)
 
+volatile unsigned short adc_value[CHANNELS_COUNT]; 	/* Array of ADC conversion results for each channel */
+volatile unsigned char adc_active_channel; 			/* ADC current active channel */
 
-unsigned short adc_value[CHANNELS_COUNT]; 		/* Array of ADC conversion results for each channel */
-volatile unsigned char adc_active_channel = 0; 	/* ADC current active channel */
 
 
 /* ADC Initialization */
-void ADC_Init(void);
+void ADC_Init(unsigned char n_channel);
 /* Start ADC conversion on selected channel.
  * mode = 1 - free run mode, mode = 0 - single mode */
 void ADC_StartConversion(unsigned char mode, unsigned char n_channel);
