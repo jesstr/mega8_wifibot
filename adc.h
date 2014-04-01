@@ -33,7 +33,7 @@ volatile unsigned char adc_active_channel; 			/* ADC current active channel */
 
 
 /* ADC Initialization */
-void ADC_Init(unsigned char n_channel);
+void ADC_Init(void);
 /* Start ADC conversion on selected channel.
  * mode = 1 - free run mode, mode = 0 - single mode */
 void ADC_StartConversion(unsigned char mode, unsigned char n_channel);

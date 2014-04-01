@@ -31,7 +31,7 @@ void SwitchChannel(unsigned char n_channel)
 }
 
 /* ADC Initialization */
-void ADC_Init(unsigned char n_channel)
+void ADC_Init(void)
 {
 	/* Input pins initialization */
 	ADCDDR1 &= ~(1 << ADCPIN1);
@@ -41,7 +41,6 @@ void ADC_Init(unsigned char n_channel)
 	/* Clock divider 64, interrupt enabled */
 	ADCSRA = (1 << ADPS2)|(1 << ADPS1)|(0 << ADPS0)|(1 << ADIE);
 	ADC_ENABLE;
-	adc_active_channel = n_channel;
 }
 
 /* Start ADC conversion on selected channel.

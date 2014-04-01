@@ -108,7 +108,7 @@ int main(void)
 	Chassis_Init(); /* we are using _4WHEEL_2WD_ chassis scheme */
 	Servo_Init();
 	Turret_Init();
-	ADC_Init(0);
+	ADC_Init();
 	sei();
 
     while(1) {
