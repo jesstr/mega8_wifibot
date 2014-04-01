@@ -153,24 +153,19 @@
 								} while(0)
 #endif
 
-#define CHASSIS_TIMER_RESET 	do {							\
-								TCNT0 = 0; 						\
-								Chassis_TimerCurrentTick = 0;	\
-								} while(0)
+#define CHASSIS_TIMER_RESET 	Chassis_TimerCurrentTick = 0
 
-#define CHASSIS_TIMER_START 	do {								\
-								CHASSIS_TIMER_RESET;					\
-								/* 1024 divider, (~30Гц) on 8MHz */ \
-								TCCR0 |= (1<<CS02)|(1<<CS00); 		\
-								} while(0)
+#define CHASSIS_TIMER_START 	CHASSIS_TIMER_RESET
+
+/* #define CHASSIS_TIMER_STOP		TCCR0 &= ~((1<<CS02)|(1<<CS00)); */
 
 #define CHASSIS_PWM_START 		TCCR1B |= (1<<CS10);	 /* No prescaling, PWM frequency is 15.625kHz  */
 #define CHASSIS_PWM_STOP 		TCCR1B &= ~(1<<CS10);
 
-#define CHASSIS_TIMER_STOP		TCCR0 &= ~((1<<CS02)|(1<<CS00));
-
 volatile unsigned short Chassis_TimerNTicksToRun;	/* 1 = (~33ms on 8MHz and 1024 divider), Number of timer periods to run motors */
 volatile unsigned long Chassis_TimerCurrentTick; 	/* Current timer ticks */
+volatile unsigned char Chassis_TimerIsRunning;
+
 
 #ifdef _3WHEEL_2WD_
 void Chassis_DirectRun(signed short left_delay, signed short right_delay);

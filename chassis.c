@@ -48,12 +48,6 @@ void Chassis_DirectRun(signed short delay)
 }
 #endif
 
-/* Timer initialization for non-blocking delay (ATmega8 Timer0) */
-void Chassis_TimerInit(void)
-{
-	TIMSK |= (1<<TOIE0);
-	CHASSIS_TIMER_RESET;
-}
 
 #ifdef _3WHEEL_2WD_
 /* Non-blocking chassis run according to passed parrameters: direction, speed, time */
@@ -106,6 +100,5 @@ void Chassis_PWMinit(void)
 void Chassis_Init(void)
 {
 	CHASSIS_MOTOR_INIT;
-	Chassis_TimerInit();
 	Chassis_PWMinit();
 }

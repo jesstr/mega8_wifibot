@@ -51,6 +51,18 @@ unsigned char global_state = 0; // Ïåðåìåííàÿ ôëàãîâ ñîñòî�
 #define DATA_SEND_DONE		global_state &= ~(1<<UART_tx_ready_bit) 	/* TX data ready flag clear */
 #define DATA_SEND_READY		global_state |= (1<<UART_tx_ready_bit)		/* TX data ready flag set */
 
+
+
+
+/* SysTick timer initialization for non-blocking delay (ATmega8 Timer0) */
+void SysTick_Init(void)
+{
+	/* 1024 divider, (~30Гц) on 8MHz */
+	TCCR0 |= (1<<CS02)|(1<<CS00);
+	TIMSK |= (1<<TOIE0);
+	TCNT0 = 0;
+}
+
 // Îáðàáîòêà ïðåðûâàíèÿ ïî ïðèåìó áàéòà ïî UART (ïîìåùàåòñÿ â ãëàâíûé ìîäóëü)
 ISR(USART_RXC_vect)
 {
@@ -78,21 +90,33 @@ ISR(USART_RXC_vect)
 	}
 }
 
-/* Chassis_Timer interrupt routine (Timer0 overflow IRQ) */
+/* SysTick_Timer interrupt routine (Timer0 overflow IRQ) */
 ISR(TIMER0_OVF_vect)
 {
-	if (Chassis_TimerCurrentTick < Chassis_TimerNTicksToRun) {
-		Chassis_TimerCurrentTick++;
+	/* Chassis timer check */
+	if ( Chassis_TimerIsRunning ) {
+		if (Chassis_TimerCurrentTick < Chassis_TimerNTicksToRun) {
+			Chassis_TimerCurrentTick++;
+		}
+		else {
+			CHASSIS_TIMER_RESET;
+			#ifdef _3WHEEL_2WD_
+			OCR1A = 0;
+			OCR1B = 0;
+			#endif
+			#ifdef _4WHEEL_2WD_
+			OCR1A = 0;
+			#endif
+		}
 	}
-	else {
-		CHASSIS_TIMER_RESET;
-		#ifdef _3WHEEL_2WD_
-		OCR1A = 0;
-		OCR1B = 0;
-		#endif
-		#ifdef _4WHEEL_2WD_
-		OCR1A = 0;
-		#endif
+	/* turret horizontal timer check */
+	if ( Turret_TimerHorIsRunning ) {
+		if (Turret_TimerCurrentTickHor < Turret_TimerNTicksToRunHor) {
+			Turret_TimerCurrentTickHor++;
+		}
+		else {
+
+		}
 	}
 }
 
@@ -104,6 +128,7 @@ int main(void)
 	DDRD |= (1<<PD2);
 	PORTD |= (1<<PD2);
 	*/
+	SysTick_Init();
 	UART_Init(MYUBRR);
 	Chassis_Init(); /* we are using _4WHEEL_2WD_ chassis scheme */
 	Servo_Init();
@@ -140,11 +165,33 @@ int main(void)
 				COMMAND_DONE;
 			}
 			#endif
+			/* Turret vertical move by servo :  "turvsrv=<vertical pulse width>" */
+			else if (strcmp(lex_p[0], "turvsrv") == 0) {
+				Turret_MoveVertServo(atoi(lex_p[1]));
+				COMMAND_DONE;
+			}
+			/* Turret horizontal move by servo :  "turhsrv=<horizontal pulse width>" */
+			else if (strcmp(lex_p[0], "turhsrv") == 0) {
+				Turret_MoveHorServo(atoi(lex_p[1]));
+				COMMAND_DONE;
+			}
+			/* Turret vertical move by DC :  "turvdc=[U|D],<speed, percents>,<time, 1=100ms>" */
+			else if (strcmp(lex_p[0], "turvdc") == 0) {
+				Turret_MoveVertDC(atoi(lex_p[1]), atoi(lex_p[2]), atoi(lex_p[3]));
+				COMMAND_DONE;
+			}
+			/* Turret horizontal move by DC :  "turhdc=[L|R],<speed, percents>,<time, 1=100ms>" */
+			else if (strcmp(lex_p[0], "turhdc") == 0) {
+				Turret_MoveVertDC(atoi(lex_p[1]), atoi(lex_p[2]), atoi(lex_p[3]));
+				COMMAND_DONE;
+			}
+#if 0
 			/* Turret moves :  "turr=<horizontal pulse width>,<vertical pulse width>" */
 			else if (strcmp(lex_p[0], "turr") == 0) {
 				Turret_Move(atoi(lex_p[1]), atoi(lex_p[2]));
 				COMMAND_DONE;
 			}
+#endif
 			/* Turret fire :  "fire=<duration>" */
 			else if (strcmp(lex_p[0], "fire") == 0) {
 				Turret_Fire(atoi(lex_p[1]));

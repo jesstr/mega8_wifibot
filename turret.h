@@ -66,6 +66,32 @@
 								INPUT3_DDR |= (1<<INPUT3_PIN);	\
 								INPUT4_DDR |= (1<<INPUT4_PIN);	\
 								} while(0)
+
+#define TURRET_TIMER_HOR_RESET 	Turret_TimerCurrentTickHor = 0
+
+#define TURRET_TIMER_HOR_START 	do {							\
+								TURRET_TIMER_HOR_RESET;			\
+								Turret_TimerHorIsRunning = 1;	\
+								} while(0)
+
+#define TURRET_TIMER_HOR_STOP 	do {							\
+								TURRET_TIMER_HOR_RESET;			\
+								Turret_TimerHorIsRunning = 0;	\
+								} while(0)
+
+#define TURRET_PWM_HOR_START 		TCCR2 |= (1<<CS20);	 /* No prescaling, PWM frequency is 15.625kHz  */
+#define TURRET_PWM_HOR_STOP 		TCCR2 &= ~(1<<CS20);
+
+volatile unsigned short Turret_TimerNTicksToRunHor;	/* 1 = (~33ms on 8MHz and 1024 divider), Number of timer periods to run motors */
+volatile unsigned long Turret_TimerCurrentTickHor; 	/* Current timer ticks */
+volatile unsigned char Turret_TimerHorIsRunning;
+
+#endif
+
+#ifdef _VERT_DC_
+
+/* Place here defines for vertical turret move by DC */
+
 #endif
 
 #define LASER_PIN				PB0
@@ -86,5 +112,10 @@ void Turret_Init(void);
 void Turret_Fire(unsigned char duration);
 /* Turret moving according to passed horizontal and vertical pulse widths */
 void Turret_Move(unsigned short hor_pos, unsigned short vert_pos);
+
+void Turret_MoveVertServo(unsigned short vert_pos);
+void Turret_MoveHorServo(unsigned short vert_pos);
+void Turret_MoveVertDC(char* direction, unsigned char speed, unsigned char time);
+void Turret_MoveHorDC(char* direction, unsigned char speed, unsigned char time);
 
 #endif /* TURRET_H_ */
