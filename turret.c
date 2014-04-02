@@ -94,6 +94,7 @@ void Turret_Move(unsigned short hor_pos, unsigned short vert_pos)
 	}
 	Servo_UpdateArrays();
 }
+#endif
 
 /* TODO remove */
 #if 0

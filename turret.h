@@ -43,19 +43,19 @@
 								INPUT4_PORT &= ~(1<<INPUT4_PIN);\
 								} while(0)
 
-#define MOTOR_HOR_RIGH			do { 							\
+#define MOTOR_HOR_RIGHT			do { 							\
 								INPUT4_PORT |= (1<<INPUT4_PIN);	\
 								INPUT3_PORT &= ~(1<<INPUT3_PIN);\
 								} while(0)
 
 #define TURRET_HOR_LEFT_RUN		do { 				\
-								MOTOR_HOR_LEFT		\
-								MOTOR_HOR_ENABLE	\
+								MOTOR_HOR_LEFT;		\
+								MOTOR_HOR_ENABLE;	\
 								} while(0)
 
 #define TURRET_HOR_RIGHT_RUN	do { 				\
-								MOTOR_HOR_RIGHT		\
-								MOTOR_HOR_ENABLE	\
+								MOTOR_HOR_RIGHT;		\
+								MOTOR_HOR_ENABLE;	\
 								} while(0)
 
 #define TURRET_HOR_STOP			MOTOR_HOR_DISABLE
