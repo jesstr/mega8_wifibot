@@ -153,11 +153,17 @@
 								} while(0)
 #endif
 
-#define CHASSIS_TIMER_RESET 	Chassis_TimerCurrentTick = 0
+#define CHASSIS_TIMER_RESET 	Chassis_TimerCurrentTick = 0;
 
-#define CHASSIS_TIMER_START 	CHASSIS_TIMER_RESET
+#define CHASSIS_TIMER_START 	do {							\
+								CHASSIS_TIMER_RESET;			\
+								Chassis_TimerIsRunning = 1;		\
+								} while(0)
 
-/* #define CHASSIS_TIMER_STOP		TCCR0 &= ~((1<<CS02)|(1<<CS00)); */
+#define CHASSIS_TIMER_STOP		do {							\
+								CHASSIS_TIMER_RESET;			\
+								Turret_TimerHorIsRunning = 0;	\
+								} while(0)
 
 #define CHASSIS_PWM_START 		TCCR1B |= (1<<CS10);	 /* No prescaling, PWM frequency is 15.625kHz  */
 #define CHASSIS_PWM_STOP 		TCCR1B &= ~(1<<CS10);

@@ -19,7 +19,7 @@
 #include "wait.h"
 #include "adc.h"
 
-
+/* TODO translate comments */
 #define UART_RX_BUFF_SIZE	32	// Ðàçìåð áóôåðà ïðèåìà UART
 #define UART_TX_BUFF_SIZE	32	// Ðàçìåð áóôåðà ïðèåìà UART
 #define UART_LEX_MASS_SIZE	4	// Ðàçìåð ìàññèâà ëåêñåì
@@ -90,6 +90,8 @@ ISR(USART_RXC_vect)
 	}
 }
 
+/* TODO arrange timers as structs */
+/* TODO arrange timer registers (OCR1A, OCR1B) as #define's */
 /* SysTick_Timer interrupt routine (Timer0 overflow IRQ) */
 ISR(TIMER0_OVF_vect)
 {
@@ -99,7 +101,7 @@ ISR(TIMER0_OVF_vect)
 			Chassis_TimerCurrentTick++;
 		}
 		else {
-			CHASSIS_TIMER_RESET;
+			CHASSIS_TIMER_STOP;
 			#ifdef _3WHEEL_2WD_
 			OCR1A = 0;
 			OCR1B = 0;
