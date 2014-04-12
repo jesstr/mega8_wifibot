@@ -179,12 +179,12 @@ int main(void)
 			}
 			/* Turret vertical move by DC :  "turvdc=[U|D],<speed, percents>,<time, 1=100ms>" */
 			else if (strcmp(lex_p[0], "turvdc") == 0) {
-				Turret_MoveVertDC(atoi(lex_p[1]), atoi(lex_p[2]), atoi(lex_p[3]));
+				Turret_MoveVertDC(lex_p[1], atoi(lex_p[2]), atoi(lex_p[3]));
 				COMMAND_DONE;
 			}
 			/* Turret horizontal move by DC :  "turhdc=[L|R],<speed, percents>,<time, 1=100ms>" */
 			else if (strcmp(lex_p[0], "turhdc") == 0) {
-				Turret_MoveVertDC(atoi(lex_p[1]), atoi(lex_p[2]), atoi(lex_p[3]));
+				Turret_MoveVertDC(lex_p[1], atoi(lex_p[2]), atoi(lex_p[3]));
 				COMMAND_DONE;
 			}
 #if 0
