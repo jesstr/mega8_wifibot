@@ -111,15 +111,34 @@ ISR(TIMER0_OVF_vect)
 			#endif
 		}
 	}
-	/* turret horizontal timer check */
+	/* turret HORIZONTAL timer check */
 	if ( Turret_TimerHorIsRunning ) {
 		if (Turret_TimerCurrentTickHor < Turret_TimerNTicksToRunHor) {
 			Turret_TimerCurrentTickHor++;
 		}
 		else {
-
+			TURRET_TIMER_HOR_STOP;
+			#ifdef _HOR_DC_
+			OCR1B = 0;
+			#endif
 		}
 	}
+}
+
+/* INT0 interrupt routine (INT0 external IRQ) */
+ISR(INT0_vect) {
+	TURRET_TIMER_HOR_STOP;
+	#ifdef _HOR_DC_
+	OCR1B = 0;
+	#endif
+}
+
+/* INT1 interrupt routine (INT1 external IRQ) */
+ISR(INT1_vect) {
+	TURRET_TIMER_HOR_STOP;
+	#ifdef _HOR_DC_
+	OCR1B = 0;
+	#endif
 }
 
 /* Main routine */
