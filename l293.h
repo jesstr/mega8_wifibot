@@ -15,8 +15,8 @@
 #define CE1_PORT 	PORTB
 #define CE1_DDR 	DDRB
 
-#define CE2_PIN		PB2
-#define CE2_PORT 	PORTB
+#define CE2_PIN		PB3
+#define CE2_PORT	PORTB
 #define CE2_DDR 	DDRB
 
 #define INPUT1_PIN	PC5
