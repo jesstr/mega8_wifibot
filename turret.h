@@ -38,6 +38,13 @@
 #define MOTOR_HOR_DISABLE		CHIP2_DISABLE
 #define MOTOR_HOR_ENABLE		CHIP2_ENABLE
 
+#define TURRET_MOTOR_HOR_INIT	do {							\
+								MOTOR_HOR_DISABLE;				\
+								CE2_DDR |= (1<<CE2_PIN);		\
+								INPUT3_DDR |= (1<<INPUT3_PIN);	\
+								INPUT4_DDR |= (1<<INPUT4_PIN);	\
+								} while(0)
+
 #define MOTOR_HOR_LEFT			do { 							\
 								INPUT3_PORT |= (1<<INPUT3_PIN);	\
 								INPUT4_PORT &= ~(1<<INPUT4_PIN);\

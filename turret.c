@@ -14,7 +14,7 @@
 void Turret_PWMInit(void)
 {
 	TCCR2 |= (1<<COM21)|(1<<WGM20); /* PWM, Phase Correct, 8-bit, OC2 is connected */
-	TCCR1B |= (1<<CS20); /* No prescaling, PWM frequency is 15.625kHz  */
+	TCCR2 |= (1<<CS20); /* No prescaling, PWM frequency is 15.625kHz  */
 	TCNT2 = 0;
 	OCR2 = 0;
 }
@@ -66,6 +66,7 @@ void Turret_Init(void)
 {
 	//GUN_INIT;
 	LASER_INIT;
+	TURRET_MOTOR_HOR_INIT;
 	Turret_PWMInit();
 }
 

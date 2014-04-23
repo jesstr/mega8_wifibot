@@ -119,7 +119,7 @@ ISR(TIMER0_OVF_vect)
 		else {
 			TURRET_TIMER_HOR_STOP;
 			#ifdef _HOR_DC_
-			OCR1B = 0;
+			OCR2 = 0;
 			#endif
 		}
 	}
@@ -203,7 +203,7 @@ int main(void)
 			}
 			/* Turret horizontal move by DC :  "turhdc=[L|R],<speed, percents>,<time, 1=100ms>" */
 			else if (strcmp(lex_p[0], "turhdc") == 0) {
-				Turret_MoveVertDC(lex_p[1], atoi(lex_p[2]), atoi(lex_p[3]));
+				Turret_MoveHorDC(lex_p[1], atoi(lex_p[2]), atoi(lex_p[3]));
 				COMMAND_DONE;
 			}
 #if 0
