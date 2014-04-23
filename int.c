@@ -4,6 +4,7 @@
  *  Created on: 14.04.2014
  *      Author: embox
  */
+#include <avr/io.h>
 #include "int.h"
 
 #define INTPORT0 	PORTD
