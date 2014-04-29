@@ -1,9 +1,6 @@
 #include "avr/io.h"
 #include "uart.h"
 
-#define BAUDRATE 38400
-#define MYUBRR F_CPU/16/BAUDRATE-1
-
 /* UART initialization */
 void UART_Init(unsigned int ubrr1)
 {

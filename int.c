@@ -19,9 +19,9 @@
 void INT_Init() {
 	/* Input pins initialization */
 	INTDDR0 &= ~(1 << INTPIN0);
-	INTPORT0 &= ~(1 << INTPIN0);
+	INTPORT0 |= (1 << INTPIN0);
 	INTDDR1 &= ~(1 << INTPIN1);
-	INTPORT1 &= ~(1 << INTPIN1);
+	INTPORT1 |= (1 << INTPIN1);
 	/* External interrupts enable */
 	GICR |= (1 << INT0)|(0 << INT1);
 	/* Falling edge interrupt on INT1 */

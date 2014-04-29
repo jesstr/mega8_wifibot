@@ -18,6 +18,7 @@
 #include "turret.h"
 #include "wait.h"
 #include "adc.h"
+#include "int.h"
 
 /* TODO translate comments */
 #define UART_RX_BUFF_SIZE	32	// Ðàçìåð áóôåðà ïðèåìà UART
@@ -160,7 +161,7 @@ ISR(TIMER0_OVF_vect)
 ISR(INT0_vect) {
 	TURRET_TIMER_HOR_STOP;
 	#ifdef _HOR_DC_
-	OCR1B = 0;
+	OCR2 = 0;
 	#endif
 }
 
@@ -168,7 +169,7 @@ ISR(INT0_vect) {
 ISR(INT1_vect) {
 	TURRET_TIMER_HOR_STOP;
 	#ifdef _HOR_DC_
-	OCR1B = 0;
+	OCR2 = 0;
 	#endif
 }
 
@@ -186,6 +187,7 @@ int main(void)
 	Servo_Init();
 	Turret_Init();
 	ADC_Init();
+	INT_Init();
 	sei();
 
     while(1) {
