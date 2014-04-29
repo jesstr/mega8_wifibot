@@ -31,7 +31,7 @@ void Chassis_DirectRun(signed short left_delay, signed short right_delay)
 	wait_ms(left_delay);
 	CHASSIS_FREEWHEEL;
 }
-#endif
+#endif /* _3WHEEL_2WD_ */
 
 #ifdef _4WHEEL_2WD_
 /* only for debugging */
@@ -46,7 +46,7 @@ void Chassis_DirectRun(signed short delay)
 	wait_ms(delay);
 	CHASSIS_FREEWHEEL;
 }
-#endif
+#endif /* _4WHEEL_2WD_ */
 
 
 #ifdef _3WHEEL_2WD_
@@ -59,10 +59,11 @@ void Chassis_Run(char* direction, unsigned char speed, unsigned char time)
 		case 'F' : OCR1A = speed; OCR1B = speed; CHASSIS_FORWARD_RUN; break;
 		case 'B' : OCR1A = speed; OCR1B = speed; CHASSIS_BACKWARD_RUN; break;
 	}
-	Chassis_TimerNTicksToRun = time;
+	//Chassis_TimerNTicksToRun = time;
+	chassis_timer.load = time;
 	CHASSIS_TIMER_START;
 }
-#endif
+#endif /* _3WHEEL_2WD_ */
 
 #ifdef _4WHEEL_2WD_
 /* Non-blocking chassis run according to passed parrameters: direction, speed, time */
@@ -72,10 +73,11 @@ void Chassis_Run(char* direction, unsigned char speed, unsigned char time)
 		case 'F' : OCR1A = speed; CHASSIS_FORWARD_RUN; break;
 		case 'B' : OCR1A = speed; CHASSIS_BACKWARD_RUN; break;
 	}
-	Chassis_TimerNTicksToRun = time;
+	//Chassis_TimerNTicksToRun = time;
+	chassis_timer.load = time;
 	CHASSIS_TIMER_START;
 }
-#endif
+#endif /* _4WHEEL_2WD_ */
 
 /* Chassis steering according to passed pulse width */
 void Chassis_Steer(unsigned short width)
