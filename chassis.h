@@ -10,10 +10,13 @@
 
 #include <avr/io.h>
 #include "l293.h"
+#include "soft_timer.h"
 
 /* Definition of chassis scheme. Chassis scheme which is actually used should be uncommented. */
  #define _4WHEEL_2WD_ 	1
 //#define _3WHEEL_2WD_	1
+
+soft_timer_t chassis_timer;
 
 /* Defines for 3 wheel 2wd chassis scheme */
 #ifdef _3WHEEL_2WD_
@@ -104,7 +107,7 @@
 								_delay_ms(100);		\
 								MOTOR_BOTH_DISABLE;	\
 								} while(0)
-#endif
+#endif /* _3WHEEL_2WD_ */
 
 
 /* Defines for 4 wheel 2wd chassis scheme */
@@ -151,8 +154,9 @@
 								_delay_ms(100);	\
 								MOTOR_DISABLE;	\
 								} while(0)
-#endif
+#endif /* _4WHEEL_2WD_ */
 
+#if 0
 #define CHASSIS_TIMER_RESET 	Chassis_TimerCurrentTick = 0;
 
 #define CHASSIS_TIMER_START 	do {							\
@@ -164,21 +168,35 @@
 								CHASSIS_TIMER_RESET;			\
 								Turret_TimerHorIsRunning = 0;	\
 								} while(0)
+#endif
+
+#define CHASSIS_TIMER_RESET		chassis_timer.counter = 0
+
+#define CHASSIS_TIMER_START 	do {							\
+								CHASSIS_TIMER_RESET;			\
+								chassis_timer.is_running = 1;	\
+								} while(0)
+
+#define CHASSIS_TIMER_STOP		do {							\
+								CHASSIS_TIMER_RESET;			\
+								chassis_timer.is_running = 0;	\
+								} while(0)
 
 #define CHASSIS_PWM_START 		TCCR1B |= (1<<CS10);	 /* No prescaling, PWM frequency is 15.625kHz  */
 #define CHASSIS_PWM_STOP 		TCCR1B &= ~(1<<CS10);
 
+#if 0
 volatile unsigned short Chassis_TimerNTicksToRun;	/* 1 = (~33ms on 8MHz and 1024 divider), Number of timer periods to run motors */
 volatile unsigned long Chassis_TimerCurrentTick; 	/* Current timer ticks */
 volatile unsigned char Chassis_TimerIsRunning;
-
+#endif
 
 #ifdef _3WHEEL_2WD_
 void Chassis_DirectRun(signed short left_delay, signed short right_delay);
-#endif
+#endif /* _3WHEEL_2WD_ */
 #ifdef _4WHEEL_2WD_
 void Chassis_DirectRun(signed short delay);
-#endif
+#endif /* _4WHEEL_2WD_ */
 void Chassis_Run(char* direction, unsigned char speed, unsigned char time);
 void Chassis_Steer(unsigned short width);
 void Chassis_Init(void);

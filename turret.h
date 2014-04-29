@@ -10,10 +10,13 @@
 
 #include <avr/io.h>
 #include "l293.h"
+#include "soft_timer.h"
 
 /* Definition of turret mechanics. Turret mechanics scheme which is actually used should be uncommented. */
-#define _HOR_DC_ 			/* DC motor for horizontal moving, servo for vertical moving */
-/* #define _HOR_SERVO_ */	/* Servo for horizontal moving, servo for vertical moving */
+#define _HOR_DC_	1	/* DC motor for horizontal moving, servo for vertical moving */
+/* #define _HOR_SERVO_ 	1	*/	/* Servo for horizontal moving, servo for vertical moving */
+
+soft_timer_t turret_timer_hor;
 
 /* TODO Change realization without using l293 chip */
 #if 0
@@ -73,7 +76,7 @@
 								INPUT3_DDR |= (1<<INPUT3_PIN);	\
 								INPUT4_DDR |= (1<<INPUT4_PIN);	\
 								} while(0)
-
+#if 0
 #define TURRET_TIMER_HOR_RESET 	Turret_TimerCurrentTickHor = 0
 
 #define TURRET_TIMER_HOR_START 	do {							\
@@ -85,6 +88,19 @@
 								TURRET_TIMER_HOR_RESET;			\
 								Turret_TimerHorIsRunning = 0;	\
 								} while(0)
+#endif
+
+#define TURRET_TIMER_HOR_RESET 	turret_timer_hor.counter = 0
+
+#define TURRET_TIMER_HOR_START 	do {								\
+								TURRET_TIMER_HOR_RESET;				\
+								turret_timer_hor.is_running = 1;	\
+								} while(0)
+
+#define TURRET_TIMER_HOR_STOP 	do {								\
+								TURRET_TIMER_HOR_RESET;				\
+								turret_timer_hor.is_running = 0;	\
+								} while(0)
 
 #define TURRET_PWM_HOR_START 		TCCR2 |= (1<<CS20);	 /* No prescaling, PWM frequency is 15.625kHz  */
 #define TURRET_PWM_HOR_STOP 		TCCR2 &= ~(1<<CS20);
@@ -93,13 +109,13 @@ volatile unsigned short Turret_TimerNTicksToRunHor;	/* 1 = (~33ms on 8MHz and 10
 volatile unsigned long Turret_TimerCurrentTickHor; 	/* Current timer ticks */
 volatile unsigned char Turret_TimerHorIsRunning;
 
-#endif
+#endif /* _HOR_DC_ */
 
 #ifdef _VERT_DC_
 
 /* Place here defines for vertical turret move by DC */
 
-#endif
+#endif /* _VERT_DC_ */
 
 #define LASER_PIN				PB0
 #define LASER_PORT 				PORTB

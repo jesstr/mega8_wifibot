@@ -96,6 +96,36 @@ ISR(USART_RXC_vect)
 ISR(TIMER0_OVF_vect)
 {
 	/* Chassis timer check */
+	if ( chassis_timer.is_running ) {
+		if (chassis_timer.counter < chassis_timer.load) {
+			chassis_timer.counter++;
+		}
+		else {
+			CHASSIS_TIMER_STOP;
+			#ifdef _3WHEEL_2WD_
+			OCR1A = 0;
+			OCR1B = 0;
+			#endif /* _3WHEEL_2WD_ */
+			#ifdef _4WHEEL_2WD_
+			OCR1A = 0;
+			#endif /* _4WHEEL_2WD_ */
+		}
+	}
+	/* turret HORIZONTAL timer check */
+	if ( turret_timer_hor.is_running ) {
+		if (turret_timer_hor.counter < turret_timer_hor.load) {
+			turret_timer_hor.counter++;
+		}
+		else {
+			TURRET_TIMER_HOR_STOP;
+			#ifdef _HOR_DC_
+			OCR2 = 0;
+			#endif
+		}
+	}
+
+#if 0
+	/* Chassis timer check */
 	if ( Chassis_TimerIsRunning ) {
 		if (Chassis_TimerCurrentTick < Chassis_TimerNTicksToRun) {
 			Chassis_TimerCurrentTick++;
@@ -123,6 +153,7 @@ ISR(TIMER0_OVF_vect)
 			#endif
 		}
 	}
+#endif
 }
 
 /* INT0 interrupt routine (INT0 external IRQ) */

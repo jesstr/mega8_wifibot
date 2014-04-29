@@ -36,7 +36,7 @@ void Turret_MoveHorDC(char* direction, unsigned char speed, unsigned char time) 
 		case 'L' : OCR2 = speed; TURRET_HOR_LEFT_RUN; break;
 		case 'R' : OCR2 = speed; TURRET_HOR_RIGHT_RUN; break;
 	}
-	Turret_TimerNTicksToRunHor = time;
+	turret_timer_hor.load = time;
 	TURRET_TIMER_HOR_START;
 }
 
