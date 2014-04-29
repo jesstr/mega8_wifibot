@@ -9,9 +9,27 @@
 #include <avr/interrupt.h>
 #include "adc.h"
 
+#define CHANNELS_COUNT	6 /* Number of ADC channels */
+
+#define ADCPORT1 	PORTC
+#define ADCPIN1 	PC1
+#define ADCDDR1 	DDRC
+
+#define ADCPORT2 	PORTC
+#define ADCPIN2 	PC0
+#define ADCDDR2 	DDRC
+
+#define ADC_START_SINGLE	ADCSRA |= (1 << ADSC)
+#define ADC_START_FREERUN	ADCSRA |= (1 << ADFR)
+#define ADC_STOP_FREERUN	ADCSRA &= ~(1 << ADFR)
+
+#define IS_CONVERTION_RUNNING	ADCSRA & (1 << ADSC)
+
+volatile unsigned short adc_value[CHANNELS_COUNT]; 	/* Array of ADC conversion results for each channel */
+volatile unsigned char adc_active_channel; 			/* ADC current active channel */
 
 /* Interrupt on ADC conversion complete */
-ISR(ADC_vect) //оПЕПШБЮМХЕ ОН ГЮБЕПЬЕМХХ ЙНМБЕПРЮЖХХ южо
+ISR(ADC_vect)
 {
 unsigned short buf;
 
@@ -20,7 +38,7 @@ buf = (ADCH << 8)|(buf);
 adc_value[adc_active_channel] = buf;
 }
 
-void SwitchChannel(unsigned char n_channel)
+static void SwitchChannel(unsigned char n_channel)
 {
 	/* Waiting last conversion is finished */
 	while (IS_CONVERTION_RUNNING) {
