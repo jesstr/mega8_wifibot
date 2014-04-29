@@ -15,20 +15,10 @@
 #define TURR_HOR_SERVO	2 	//Индекс сервомашики горизонтального отклонения турели
 #define STEERING_SERVO	3	//Индекс рулевой сервомашики
 
-#define SRVPORT1 	PORTD
-#define SRVPIN1 	PD3
-#define SRVDDR1 	DDRD
-#define SRVPORT2 	PORTD
-#define SRVPIN2 	PD4
-#define SRVDDR2 	DDRD
-#define SRVPORT3 	PORTD
-#define SRVPIN3 	PD2
-#define SRVDDR3		DDRD
-
 #define SERVO_MIN_PULSE_WIDTH	520		// Нижнее ограничение ширины импульса управляющего сигнала для сервомашинок
 #define SERVO_MAX_PULSE_WIDTH	1216	// Верхнее ограничение ширины импульса управляющего сигнала для сервомашинок
 
-unsigned int servo_pulse_width[COUNT_OF_SERVOS+1];  		//pulse_time[n] массив управляющих длительностей n-1 сервомашинок
+extern unsigned int servo_pulse_width[COUNT_OF_SERVOS+1];
 
 void Servo_UpdateArrays(void);
 void Servo_Demo(void);

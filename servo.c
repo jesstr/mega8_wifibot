@@ -4,15 +4,26 @@
 #include "servo.h"
 #include "wait.h"
 
-unsigned int delta_time[4];		//delta_time[n] массив разниц длительностей n-1 сервомашинок по порядку
-unsigned char sorted_index[4];	//упорядоченные индексы массива servo_pulse_width[n]
+#define SRVPORT1 	PORTD
+#define SRVPIN1 	PD3
+#define SRVDDR1 	DDRD
+#define SRVPORT2 	PORTD
+#define SRVPIN2 	PD4
+#define SRVDDR2 	DDRD
+#define SRVPORT3 	PORTD
+#define SRVPIN3 	PD2
+#define SRVDDR3		DDRD
+
+unsigned int servo_pulse_width[COUNT_OF_SERVOS+1];	/* array of servo pulse width COUNT_OF_SERVOS servos */
+
+static unsigned int delta_time[4];		//delta_time[n] массив разниц длительностей n-1 сервомашинок по порядку
+static unsigned char sorted_index[4];	//упорядоченные индексы массива servo_pulse_width[n]
+
+static void TimerInit(void);
+static void InitPulses(void);
 
 
-void Servo_TimerInit(void);
-void Servo_InitPulses(void);
-
-
-// AVR mega8 Timer2 overflow interrupt service routine
+/* AVR mega8 Timer2 overflow interrupt service routine */
 ISR(TIMER2_COMP_vect)
 {
 	unsigned char i;
@@ -31,6 +42,7 @@ ISR(TIMER2_COMP_vect)
 	PORTC ^= 0x01;
 }
 
+/* Used for sorting pulse width of servos  */
 void BubbleSort(unsigned char n)
 {
 	unsigned char i=0;
@@ -50,6 +62,7 @@ void BubbleSort(unsigned char n)
 	}
 }
 
+/* Sort pulse width of servos */
 void Servo_UpdateArrays(void)
 {
 	unsigned char i;
@@ -64,8 +77,10 @@ void Servo_UpdateArrays(void)
 	}
 }
 
-/* Условные числовые значения для требуемых задержек, расчитываются теоритически и колибруются осциллографом */
-void Servo_InitPulses(void)
+/* Initialization pulse width of servos
+*  Pulse width of servos are abstract values, not real time.
+*  They were computed and collibrated with oscilloscope. */
+void InitPulses(void)
 {
 	servo_pulse_width[0]=0;              //651 - 0град(900мкс), 1085 - 30град(1500мкс), 1520 - 60град(2100мкс)
 	servo_pulse_width[1]=800;            //552 - 0град(900мкс), 921 - 30град(1500мкс), 1290 - 60град(2100мкс)
@@ -77,6 +92,33 @@ void Servo_InitPulses(void)
 	sorted_index[3]=3;
 }
 
+/* AVR mega8 Timer2 initialization */
+void TimerInit(void)
+{
+	TCCR2 |= (1<<WGM21)|(1<<CS22)|(1<<CS21)|(1<<CS20);
+	TCNT2 = 0x00;
+	OCR2 = 156; // (~50Гц)
+	TIMSK |= (1<<OCIE2);
+}
+
+/* Port initialization routine */
+void IOInit(void)
+{
+	SRVDDR1 |= (1<<SRVPIN1);
+	SRVDDR2 |= (1<<SRVPIN2);
+	SRVDDR3 |= (1<<SRVPIN3);
+}
+
+/* Main initialization routine */
+void Servo_Init(void)
+{
+	IOInit();
+	TimerInit();
+	InitPulses();
+	Servo_UpdateArrays();
+}
+
+#if 0
 void Servo_Demo(void)
 {
 	_delay_ms(500);
@@ -129,29 +171,4 @@ void Servo_Demo(void)
 	Servo_UpdateArrays();
 	_delay_ms(2000);
 }
-
-/* AVR mega8 Timer2 initialization */
-void Servo_TimerInit(void)
-{
-	TCCR2 |= (1<<WGM21)|(1<<CS22)|(1<<CS21)|(1<<CS20);
-	TCNT2 = 0x00;
-	OCR2 = 156; // (~50Гц)
-	TIMSK |= (1<<OCIE2);
-}
-
-/* Port initialization routine */
-void Servo_PortInit(void)
-{
-	SRVDDR1 |= (1<<SRVPIN1);
-	SRVDDR2 |= (1<<SRVPIN2);
-	SRVDDR3 |= (1<<SRVPIN3);
-}
-
-/* Main initialization routine */
-void Servo_Init(void)
-{
-	Servo_PortInit();
-	Servo_TimerInit();
-	Servo_InitPulses();
-	Servo_UpdateArrays();
-}
+#endif
