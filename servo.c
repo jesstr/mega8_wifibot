@@ -8,10 +8,10 @@
 #define SRVPIN1 	PD3
 #define SRVDDR1 	DDRD
 #define SRVPORT2 	PORTD
-#define SRVPIN2 	PD4
+#define SRVPIN2 	PD2
 #define SRVDDR2 	DDRD
 #define SRVPORT3 	PORTD
-#define SRVPIN3 	PD2
+#define SRVPIN3 	PD4
 #define SRVDDR3		DDRD
 
 unsigned int servo_pulse_width[COUNT_OF_SERVOS+1];	/* array of servo pulse width COUNT_OF_SERVOS servos */
@@ -104,8 +104,8 @@ void TimerInit(void)
 /* Port initialization routine */
 void IOInit(void)
 {
-	SRVDDR1 |= (1<<SRVPIN1);
-	SRVDDR2 |= (1<<SRVPIN2);
+	//SRVDDR1 |= (1<<SRVPIN1);
+	//SRVDDR2 |= (1<<SRVPIN2);
 	SRVDDR3 |= (1<<SRVPIN3);
 }
 
