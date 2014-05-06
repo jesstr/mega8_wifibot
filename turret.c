@@ -9,6 +9,10 @@
 #include "servo.h"
 #include "wait.h"
 
+/* Flags of turret horizontal left and right end-switches */
+unsigned char turret_left_turn_is_blocked;
+unsigned char turret_right_turn_is_blocked;
+
 
 /* Timer initialization for PWM (ATmega8 Timer1) */
 void Turret_PWMInit(void)
@@ -33,8 +37,14 @@ void Turret_Fire(unsigned char duration)
 
 void Turret_MoveHorDC(char* direction, unsigned char speed, unsigned char time) {
 	switch (direction[0]) {
-		case 'L' : OCR2 = speed; TURRET_HOR_LEFT_RUN; break;
-		case 'R' : OCR2 = speed; TURRET_HOR_RIGHT_RUN; break;
+		case 'L' :
+			left_move_blocked ? OCR2 = 0 : OCR2 = speed;
+			TURRET_HOR_LEFT_RUN;
+			break;
+		case 'R' :
+			right_move_blocked ? OCR2 = 0 : OCR2 = speed;
+			TURRET_HOR_RIGHT_RUN;
+			break;
 	}
 	turret_timer_hor.load = time;
 	TURRET_TIMER_HOR_START;

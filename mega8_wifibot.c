@@ -96,16 +96,14 @@ ISR(TIMER0_OVF_vect)
 {
 	unsigned char i;
 
-	for (i = 0; i < SOFT_TIMERS_MAX_COUNT; i++ ) {
-		if (system_timers[i] != NULL ) {
-			if ( system_timers[i]->is_running ) {
-				if (system_timers[i]->counter < system_timers[i]->load) {
-					system_timers[i]->counter++;
-				}
-				else {
-					/* Call timer handler function */
-					(*system_timers[i]->handler)();
-				}
+	for (i = 0; system_timers[i] != NULL; i++ ) {
+		if ( system_timers[i]->is_running ) {
+			if (system_timers[i]->counter < system_timers[i]->load) {
+				system_timers[i]->counter++;
+			}
+			else {
+				/* Call timer handler function */
+				(*system_timers[i]->handler)();
 			}
 		}
 	}
@@ -115,12 +113,14 @@ ISR(TIMER0_OVF_vect)
 ISR(INT0_vect) {
 	/* Call timer handler to stop turret DC */
 	(*turret_timer_hor.handler)();
+	turret_left_turn_is_blocked = 1;
 }
 
 /* INT1 interrupt routine (INT1 external IRQ) */
 ISR(INT1_vect) {
 	/* Call timer handler to stop turret DC */
 	(*turret_timer_hor.handler)();
+	turret_right_turn_is_blocked = 1;
 }
 
 /* Main routine */

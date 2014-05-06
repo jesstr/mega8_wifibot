@@ -16,8 +16,6 @@
 #define _HOR_DC_	1	/* DC motor for horizontal moving, servo for vertical moving */
 /* #define _HOR_SERVO_ 	1	*/	/* Servo for horizontal moving, servo for vertical moving */
 
-soft_timer_t turret_timer_hor;
-
 /* TODO Change realization without using l293 chip */
 #if 0
 #define GUN_DISABLE				CHIP2_DISABLE
@@ -128,6 +126,13 @@ volatile unsigned char Turret_TimerHorIsRunning;
 								TURRET_LASER_OFF;				\
 								LASER_DDR |= (1<<LASER_PIN);	\
 								} while(0)
+
+
+soft_timer_t turret_timer_hor;
+
+/* Flags of turret horizontal left and right end-switches */
+extern unsigned char turret_left_turn_is_blocked;
+extern unsigned char turret_rigth_turn_is_blocked;
 
 /* General turret initialization */
 void Turret_Init(void);
