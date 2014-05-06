@@ -91,86 +91,36 @@ ISR(USART_RXC_vect)
 	}
 }
 
-/* TODO arrange timers as structs */
-/* TODO arrange timer registers (OCR1A, OCR1B) as #define's */
 /* SysTick_Timer interrupt routine (Timer0 overflow IRQ) */
 ISR(TIMER0_OVF_vect)
 {
-	/* Chassis timer check */
-	if ( chassis_timer.is_running ) {
-		if (chassis_timer.counter < chassis_timer.load) {
-			chassis_timer.counter++;
-		}
-		else {
-			CHASSIS_TIMER_STOP;
-			#ifdef _3WHEEL_2WD_
-			OCR1A = 0;
-			OCR1B = 0;
-			#endif /* _3WHEEL_2WD_ */
-			#ifdef _4WHEEL_2WD_
-			OCR1A = 0;
-			#endif /* _4WHEEL_2WD_ */
-		}
-	}
-	/* turret HORIZONTAL timer check */
-	if ( turret_timer_hor.is_running ) {
-		if (turret_timer_hor.counter < turret_timer_hor.load) {
-			turret_timer_hor.counter++;
-		}
-		else {
-			TURRET_TIMER_HOR_STOP;
-			#ifdef _HOR_DC_
-			OCR2 = 0;
-			#endif
-		}
-	}
+	unsigned char i;
 
-#if 0
-	/* Chassis timer check */
-	if ( Chassis_TimerIsRunning ) {
-		if (Chassis_TimerCurrentTick < Chassis_TimerNTicksToRun) {
-			Chassis_TimerCurrentTick++;
-		}
-		else {
-			CHASSIS_TIMER_STOP;
-			#ifdef _3WHEEL_2WD_
-			OCR1A = 0;
-			OCR1B = 0;
-			#endif
-			#ifdef _4WHEEL_2WD_
-			OCR1A = 0;
-			#endif
+	for (i = 0; i < SOFT_TIMERS_MAX_COUNT; i++ ) {
+		if (system_timers[i] != NULL ) {
+			if ( system_timers[i]->is_running ) {
+				if (system_timers[i]->counter < system_timers[i]->load) {
+					system_timers[i]->counter++;
+				}
+				else {
+					/* Call timer handler function */
+					(*system_timers[i]->handler)();
+				}
+			}
 		}
 	}
-	/* turret HORIZONTAL timer check */
-	if ( Turret_TimerHorIsRunning ) {
-		if (Turret_TimerCurrentTickHor < Turret_TimerNTicksToRunHor) {
-			Turret_TimerCurrentTickHor++;
-		}
-		else {
-			TURRET_TIMER_HOR_STOP;
-			#ifdef _HOR_DC_
-			OCR2 = 0;
-			#endif
-		}
-	}
-#endif
 }
 
 /* INT0 interrupt routine (INT0 external IRQ) */
 ISR(INT0_vect) {
-	TURRET_TIMER_HOR_STOP;
-	#ifdef _HOR_DC_
-	OCR2 = 0;
-	#endif
+	/* Call timer handler to stop turret DC */
+	(*turret_timer_hor.handler)();
 }
 
 /* INT1 interrupt routine (INT1 external IRQ) */
 ISR(INT1_vect) {
-	TURRET_TIMER_HOR_STOP;
-	#ifdef _HOR_DC_
-	OCR2 = 0;
-	#endif
+	/* Call timer handler to stop turret DC */
+	(*turret_timer_hor.handler)();
 }
 
 /* Main routine */

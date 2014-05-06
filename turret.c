@@ -60,6 +60,15 @@ void Turret_MoveVertServo(unsigned short vert_pos) {
 	Servo_UpdateArrays();
 }
 
+/* TODO arrange timer registers (OCR1A, OCR1B) as #define's */
+/* Timer handler, called in interrupt context when time is up */
+void TimerHorHandler(void){
+	TURRET_HOR_STOP;
+	TURRET_TIMER_HOR_STOP;
+	#ifdef _HOR_DC_
+	OCR2 = 0;
+	#endif
+}
 
 /* General turret initialization */
 void Turret_Init(void)
@@ -68,6 +77,8 @@ void Turret_Init(void)
 	LASER_INIT;
 	TURRET_MOTOR_HOR_INIT;
 	Turret_PWMInit();
+	turret_timer_hor.handler = TimerHorHandler;
+	SoftTimer_RegisterTimer(&turret_timer_hor);
 }
 
 

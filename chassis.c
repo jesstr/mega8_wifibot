@@ -98,9 +98,25 @@ void Chassis_PWMinit(void)
 	OCR1B = 0;
 }
 
+/* TODO arrange timer registers (OCR1A, OCR1B) as #define's */
+/* Timer handler, called in interrupt context when time is up */
+void TimerHandler(void){
+	CHASSIS_FREEWHEEL;
+	CHASSIS_TIMER_STOP;
+	#ifdef _4WHEEL_2WD_
+	OCR1A = 0;
+	#endif /* _4WHEEL_2WD_ */
+	#ifdef _3WHEEL_2WD_
+	OCR1A = 0;
+	OCR1B = 0;
+	#endif /* _3WHEEL_2WD_ */
+}
+
 /* General chassis initialization */
 void Chassis_Init(void)
 {
 	CHASSIS_MOTOR_INIT;
 	Chassis_PWMinit();
+	chassis_timer.handler = TimerHandler;
+	SoftTimer_RegisterTimer(&chassis_timer);
 }
