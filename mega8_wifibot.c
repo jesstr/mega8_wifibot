@@ -52,16 +52,17 @@ unsigned char global_state = 0; // Ïåðåìåííàÿ ôëàãîâ ñîñòî�
 #define DATA_SEND_DONE		global_state &= ~(1<<UART_tx_ready_bit) 	/* TX data ready flag clear */
 #define DATA_SEND_READY		global_state |= (1<<UART_tx_ready_bit)		/* TX data ready flag set */
 
-
+#define SYSTICK_INIT_TCNT	224	/* Timer TCNT register initial value to increase timer resolution */
 
 
 /* SysTick timer initialization for non-blocking delay (ATmega8 Timer0) */
 void SysTick_Init(void)
 {
-	/* 1024 divider, (~30Гц) on 8MHz */
+	/* 256 divider, 31250Hz on 8MHz */
 	TCCR0 |= (1<<CS02)|(1<<CS00);
 	TIMSK |= (1<<TOIE0);
-	TCNT0 = 0;
+	/* 1008 ticks per second, TCNT0 is reinitialized every interrupt (tick) */
+	TCNT0 = SYSTICK_INIT_TCNT;
 }
 
 // Îáðàáîòêà ïðåðûâàíèÿ ïî ïðèåìó áàéòà ïî UART (ïîìåùàåòñÿ â ãëàâíûé ìîäóëü)
@@ -91,11 +92,13 @@ ISR(USART_RXC_vect)
 	}
 }
 
-/* TODO arrange timers as structs */
+/* TODO array of timers */
 /* TODO arrange timer registers (OCR1A, OCR1B) as #define's */
 /* SysTick_Timer interrupt routine (Timer0 overflow IRQ) */
 ISR(TIMER0_OVF_vect)
 {
+	TCNT0 = SYSTICK_INIT_TCNT;
+
 	/* Chassis timer check */
 	if ( chassis_timer.is_running ) {
 		if (chassis_timer.counter < chassis_timer.load) {
