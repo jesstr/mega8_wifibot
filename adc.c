@@ -78,3 +78,26 @@ void ADC_StartConversion(unsigned char mode, unsigned char n_channel)
 	}
 }
 
+/* Start new single conversion and get the ADC value. Blocking routine. */
+unsigned short ADC_GetValue(unsigned char n_channel)
+{
+	unsigned short buf;
+
+	/* Start new ADC conversion in single mode */
+	ADC_StartConversion(ADC_SINGLE_MODE, n_channel);
+	/* Waiting last conversion is finished */
+	while (IS_CONVERTION_RUNNING) {
+		;
+	}
+
+	buf = ADCL;
+	buf = (ADCH << 8)|(buf);
+	return buf;
+}
+
+/* Returns last stored ADC value. Non-blocking routine. */
+inline unsigned short ADC_PopValue(unsigned char n_channel)
+{
+	return adc_value[n_channel];
+}
+
