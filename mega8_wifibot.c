@@ -253,7 +253,16 @@ int main(void)
 			}
 			/* TODO develop ping-pong functionality */
 			else if (strcmp(lex_p[0], "ping") == 0) {
-				uart_tx_buff = "pong";
+				uart_tx_buff = "pong\n";
+				DATA_SEND_READY;
+				COMMAND_DONE;
+			}
+			/* Get battery voltage: "getbatt" */
+			else if (strcmp(lex_p[0], "getbatt") == 0) {
+				char buf[10];
+
+				uart_tx_buff = itoa(ADC_GetValue(1), buf, 10);
+
 				DATA_SEND_READY;
 				COMMAND_DONE;
 			}
